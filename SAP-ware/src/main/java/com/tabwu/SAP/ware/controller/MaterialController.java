@@ -1,6 +1,10 @@
 package com.tabwu.SAP.ware.controller;
 
 
+import cn.afterturn.easypoi.excel.ExcelExportUtil;
+import cn.afterturn.easypoi.excel.ExcelImportUtil;
+import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.tabwu.SAP.common.entity.R;
 import com.tabwu.SAP.common.exception.CostomException;
@@ -13,11 +17,17 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 
 /**
  * @author tabwu
@@ -30,12 +40,48 @@ public class MaterialController {
     private IMaterialService materialService;
     @Autowired
     private IMaterialWareService materialWareService;
+    @Autowired
+    private Executor executor;
+
+    @GetMapping("/exportExcel")
+    @ApiOperation(value = "excel批量导出物料")
+    public void exportExcelMaterial(HttpServletResponse response) {
+        try {
+            List<Material> list = materialService.list();
+            Workbook workbook = ExcelExportUtil.exportExcel(new ExportParams("material物料数据表", "material"), Material.class, list);
+            response.setCharacterEncoding("UTF-8");
+            response.setHeader("content-Type", "application/vnd.ms-excel");
+            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode( "material物料报表.xlsx", "UTF-8"));
+            workbook.write(response.getOutputStream());
+        } catch (Exception e) {
+            throw new CostomException(20004,e.getMessage());
+        }
+    }
+
+    @PostMapping("/importExcel")
+    @ApiOperation(value = "excel批量添加物料")
+    public R addExcelMaterial(@ApiParam(name = "file",value = "excel文件",required = true)
+                                      MultipartFile file) throws Exception {
+        ImportParams params = new ImportParams();
+        params.setHeadRows(1);
+        params.setTitleRows(1);
+        List<Material> materialList = ExcelImportUtil.importExcel( file.getInputStream(), Material.class, params);
+        CountDownLatch latch = new CountDownLatch(materialList.size());
+        for (Material material : materialList) {
+            executor.execute(() -> {
+                materialService.save(material);
+            });
+            latch.countDown();
+        }
+        latch.await();
+        return R.ok();
+    }
 
     @PostMapping("/add")
     @ApiOperation(value = "添加物料")
-    public R addMaterial(@ApiParam(name = "Material",value = "Material",required = true)
-                     @RequestBody Material Material) {
-        materialService.save(Material);
+    public R addMaterial(@ApiParam(name = "material",value = "material",required = true)
+                     @RequestBody Material material) {
+        materialService.save(material);
         return R.ok();
     }
 
@@ -52,8 +98,8 @@ public class MaterialController {
     @PutMapping("/update")
     @ApiOperation(value = "修改物料")
     public R updateById(@ApiParam(name = "Material",value = "Material",required = true)
-                            @RequestBody Material Material) {
-        materialService.updateById(Material);
+                            @RequestBody Material material) {
+        materialService.updateById(material);
         return R.ok();
     }
 

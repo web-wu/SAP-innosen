@@ -1,17 +1,29 @@
 package com.tabwu.SAP.base.controller;
 
+import cn.afterturn.easypoi.excel.ExcelExportUtil;
+import cn.afterturn.easypoi.excel.ExcelImportUtil;
+import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.tabwu.SAP.base.entity.CustomerSupplier;
 import com.tabwu.SAP.base.entity.vo.CustomerSupplierVo;
 import com.tabwu.SAP.base.service.ICustomerSupplierService;
 import com.tabwu.SAP.common.entity.R;
+import com.tabwu.SAP.common.exception.CostomException;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.net.URLEncoder;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 
 /**
  * @author tabwu
@@ -22,7 +34,46 @@ import java.util.Map;
 public class CustomerSupplierController {
     @Autowired
     private ICustomerSupplierService customerSupplierService;
+    @Autowired
+    private Executor executor;
 
+    @GetMapping("/excel")
+    @ApiOperation(value = "excel批量导出客户-供应商")
+    public void exportExcel(HttpServletResponse response) {
+        try {
+            List<CustomerSupplier> list = customerSupplierService.list();
+            Workbook workbook = ExcelExportUtil.exportExcel(new ExportParams("客户-供应商报表", "customerSupplier"), CustomerSupplier.class, list);
+            response.setCharacterEncoding("UTF-8");
+            response.setHeader("content-Type", "application/vnd.ms-excel");
+            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode( "customer-supplier.xlsx", "UTF-8"));
+            workbook.write(response.getOutputStream());
+        } catch (Exception e) {
+            throw new CostomException(20004,"excel批量导出客户-供应商发送异常");
+        }
+    }
+
+    @PostMapping("/import")
+    @ApiOperation(value = "excel批量导入客户-供应商")
+    public R importExcel(@ApiParam(name = "file",value = "excel文件",required = true)
+                         MultipartFile file) {
+        try {
+            ImportParams params = new ImportParams();
+            params.setTitleRows(1);
+            params.setHeadRows(1);
+            List<CustomerSupplier> list = ExcelImportUtil.importExcel(file.getInputStream(), CustomerSupplier.class, params);
+            CountDownLatch latch = new CountDownLatch(list.size());
+            for (CustomerSupplier customerSupplier : list) {
+                executor.execute(() -> {
+                    customerSupplierService.save(customerSupplier);
+                });
+                latch.countDown();
+            }
+            latch.await();
+            return R.ok();
+        } catch (Exception e) {
+            throw new CostomException(20004,"excel批量添加客户-供应商发送异常");
+        }
+    }
 
     @PostMapping("/add")
     @ApiOperation(value = "添加客户-供应商")

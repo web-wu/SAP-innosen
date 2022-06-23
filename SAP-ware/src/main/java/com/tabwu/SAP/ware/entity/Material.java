@@ -1,5 +1,10 @@
 package com.tabwu.SAP.ware.entity;
 
+import cn.afterturn.easypoi.excel.annotation.Excel;
+import cn.afterturn.easypoi.excel.annotation.ExcelTarget;
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -14,6 +19,7 @@ import lombok.Data;
 @Data
 @TableName("yls_material")
 @ApiModel(value = "Material对象", description = "")
+@ExcelTarget("material")
 public class Material implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -22,75 +28,100 @@ public class Material implements Serializable {
     private String id;
 
     @ApiModelProperty("物料条码")
+    @Excel(name = "物料条码")
     private String code;
 
-    @ApiModelProperty("产品类型id")
-    private String typeId;
+    @ApiModelProperty("产品类型id,1-晶圆，2-半成品，3-成品")
+    @Excel(name = "产品类型id,1-晶圆，2-半成品，3-成品")
+    private Integer typeId;
 
     @ApiModelProperty("名称")
+    @Excel(name = "名称")
     private String name;
 
     @ApiModelProperty("封装")
+    @Excel(name = "封装")
     private String packaging;
 
     @ApiModelProperty("物料组id")
+    @Excel(name = "物料组id")
     private String materialGroupId;
 
     @ApiModelProperty("封装版本")
+    @Excel(name = "封装版本")
     private String packageVerssion;
 
     @ApiModelProperty("测试版本")
+    @Excel(name = "测试版本")
     private String testVerssion;
 
     @ApiModelProperty("BIN值")
+    @Excel(name = "BIN值")
     private String bin;
 
     @ApiModelProperty("计量单位id")
+    @Excel(name = "计量单位id")
     private String unitId;
 
-    @ApiModelProperty("启用 0-禁用  1-启用")
+    @ApiModelProperty("状态 0-禁用  1-启用")
+    @Excel(name = "状态 0-禁用  1-启用")
     private Integer status;
 
     @ApiModelProperty("制造商")
+    @Excel(name = "制造商")
     private String mfrs;
 
     @ApiModelProperty("备注")
+    @Excel(name = "备注")
     private String remark;
 
     @ApiModelProperty("创建时间")
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime createTime;
 
     @ApiModelProperty("修改时间")
+    @TableField(fill = FieldFill.UPDATE)
     private LocalDateTime updateTime;
 
     @ApiModelProperty("一级分类")
+    @Excel(name = "一级分类")
     private String category1;
 
     @ApiModelProperty("二级分类")
+    @Excel(name = "二级分类")
     private String category2;
 
     @ApiModelProperty("三级分类")
+    @Excel(name = "三级分类")
     private String category3;
 
     @ApiModelProperty("自定义1")
+    @Excel(name = "自定义1")
     private String otherField1;
 
     @ApiModelProperty("自定义2")
+    @Excel(name = "自定义2")
     private String otherField2;
 
     @ApiModelProperty("自定义3")
+    @Excel(name = "自定义3")
     private String otherField3;
 
     @ApiModelProperty("自定义4")
+    @Excel(name = "自定义4")
     private String otherField4;
 
     @ApiModelProperty("自定义5")
+    @Excel(name = "自定义5")
     private String otherField5;
 
     @ApiModelProperty("自定义6")
+    @Excel(name = "自定义6")
     private String otherField6;
 
     @ApiModelProperty("删除标记，0未删除，1删除，默认0")
+    @Excel(name = "删除标记，0未删除，1删除，默认0")
+    @TableLogic
     private Integer isDelete;
 
     public String getId() {
@@ -107,11 +138,11 @@ public class Material implements Serializable {
     public void setCode(String code) {
         this.code = code;
     }
-    public String getTypeId() {
+    public Integer getTypeId() {
         return typeId;
     }
 
-    public void setTypeId(String typeId) {
+    public void setTypeId(Integer typeId) {
         this.typeId = typeId;
     }
     public String getName() {

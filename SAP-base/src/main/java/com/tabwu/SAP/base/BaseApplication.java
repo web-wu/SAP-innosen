@@ -14,8 +14,8 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @SpringBootApplication
 @EnableDiscoveryClient
-@ComponentScan("com.tabwu.SAP")
 @MapperScan("com.tabwu.SAP.base.mapper")
+@ComponentScan("com.tabwu.SAP")
 public class BaseApplication {
     public static void main(String[] args) {
         SpringApplication.run(BaseApplication.class,args);
