@@ -16,9 +16,9 @@ public class ThreadPoolConfig {
 
     @Bean
     public Executor executor() {
-        return new ThreadPoolExecutor(5,10,
+        return new ThreadPoolExecutor(6,10,
                                         10, TimeUnit.SECONDS,
-                                        new LinkedBlockingDeque<>(50),
+                                        new LinkedBlockingDeque<>(200),
                                         Executors.defaultThreadFactory(),
                                         new ThreadPoolExecutor.AbortPolicy());
     }

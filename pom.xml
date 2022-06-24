@@ -13,6 +13,7 @@
         <module>SAP-ware</module>
         <module>SAP-base</module>
         <module>SAP-user</module>
+        <module>SAP-purchase</module>
     </modules>
 
     <properties>
