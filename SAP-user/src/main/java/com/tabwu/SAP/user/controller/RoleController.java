@@ -8,6 +8,8 @@ import com.tabwu.SAP.user.entity.Role;
 import com.tabwu.SAP.user.entity.UserRole;
 import com.tabwu.SAP.user.service.IRoleService;
 import com.tabwu.SAP.user.service.IUserRoleService;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,10 +65,20 @@ public class RoleController {
         return R.ok().data("role",role);
     }
 
-    @GetMapping("list")
+    @GetMapping("/list")
     @ApiOperation(value = "查询所有角色")
     public R list() {
         List<Role> list = roleService.list();
         return R.ok().data("list",list);
     }
+
+
+    @PostMapping("/distributePermission/{rid}")
+    @ApiOperation(value = "为角色分配菜单权限")
+    public R distributePermissionforUser(@PathVariable("rid") String rid,@RequestParam("pids") String[] pids) {
+        roleService.distributePermissionforUser(rid,pids);
+        return R.ok();
+    }
+
+
 }

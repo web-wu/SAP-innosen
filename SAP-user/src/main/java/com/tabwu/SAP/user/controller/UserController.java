@@ -4,6 +4,7 @@ package com.tabwu.SAP.user.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.tabwu.SAP.common.entity.R;
+import com.tabwu.SAP.user.entity.Permission;
 import com.tabwu.SAP.user.entity.Role;
 import com.tabwu.SAP.user.entity.User;
 import com.tabwu.SAP.user.entity.UserRole;
@@ -83,6 +84,14 @@ public class UserController {
         userRole.setRid(rid);
         userRoleService.saveOrUpdate(userRole,new UpdateWrapper<UserRole>().eq("uid",uid).eq("rid",rid));
         return R.ok();
+    }
+
+
+    @GetMapping("/findPermission/{uid}")
+    @ApiOperation(value = "根据用户id查询菜单权限")
+    public R findPermissionByUserId(@PathVariable("uid") String uid) {
+        Permission permission = userRoleService.findPermissionByUserId(uid);
+        return R.ok().data("permission",permission);
     }
 
 }

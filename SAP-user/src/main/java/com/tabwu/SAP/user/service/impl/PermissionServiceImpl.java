@@ -19,11 +19,10 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
     @Override
     public Permission findTree() {
         List<Permission> permissionList = baseMapper.selectList(null);
-        Permission tree = findChildrens(permissionList);
-        return tree;
+        return findChildrens(permissionList);
     }
 
-    private Permission findChildrens(List<Permission> permissionList) {
+    public Permission findChildrens(List<Permission> permissionList) {
         Permission first = null;
         for (Permission permission : permissionList) {
             if ("0".equals(permission.getPid())) {
