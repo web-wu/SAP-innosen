@@ -7,10 +7,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
- * <p>
- *
- * </p>
- *
  * @author tabwu
  * @since 2022-06-11
  */

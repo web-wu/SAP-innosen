@@ -22,7 +22,7 @@ public class Test {
                     builder.author("tabwu") // 设置作者
                             .enableSwagger() // 开启 swagger 模式
 //                            .fileOverride() // 覆盖已生成文件
-                            .outputDir("C:\\Users\\76026\\Desktop\\"); // 指定输出目录
+                            .outputDir("C:\\Users\\76026\\Desktop"); // 指定输出目录
 //                            .outputDir("D:\\java\\javaProject\\SAP-innosen\\SAP-ware\\src\\main\\java"); // 指定输出目录
                 })
                 .packageConfig(builder -> {
@@ -34,9 +34,10 @@ public class Test {
                     builder.controllerBuilder().enableRestStyle();
                     builder.addInclude("yls_material","yls_material_group","yls_material_type","yls_material_unit",
                             "yls_material_ware","yls_storage_locattion","yls_ware","yls_ware_storage") // 设置需要生成的表名
-                            .addTablePrefix("yls_"); // 设置过滤表前缀
+                            .addTablePrefix("yls_","yls_"); // 设置过滤表前缀
                 })
                 .templateEngine(new FreemarkerTemplateEngine()) // 使用Freemarker引擎模板，默认的是Velocity引擎模板
                 .execute();
+
     }
 }
