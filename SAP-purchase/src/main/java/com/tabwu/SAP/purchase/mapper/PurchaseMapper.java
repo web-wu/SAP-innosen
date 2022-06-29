@@ -1,6 +1,6 @@
 package com.tabwu.SAP.purchase.mapper;
 
-import com.tabwu.SAP.purchase.entity.PurchaseInStorage;
+import com.tabwu.SAP.purchase.entity.Purchase;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -9,8 +9,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * </p>
  *
  * @author tabwu
- * @since 2022-06-23
+ * @since 2022-06-29
  */
-public interface PurchaseInStorageMapper extends BaseMapper<PurchaseInStorage> {
+public interface PurchaseMapper extends BaseMapper<Purchase> {
 
 }

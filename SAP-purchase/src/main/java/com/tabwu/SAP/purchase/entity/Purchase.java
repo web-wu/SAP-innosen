@@ -1,55 +1,44 @@
 package com.tabwu.SAP.purchase.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
- * <p>
- * 
- * </p>
- *
  * @author tabwu
- * @since 2022-06-23
+ * @since 2022-06-29
  */
-@TableName("yls_purchase_order")
-@ApiModel(value = "PurchaseOrder对象", description = "")
-public class PurchaseOrder implements Serializable {
+@TableName("yls_purchase")
+@ApiModel(value = "Purchase对象", description = "")
+public class Purchase implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty("主键")
     private String id;
 
-    @ApiModelProperty("关联单据")
-    private String relationItem;
-
     @ApiModelProperty("单据编号")
     private String code;
+
+    @ApiModelProperty("单据类型，1-需求单，2-订单，3-收货单，4-退货单，默认-1")
+    private Integer type;
 
     @ApiModelProperty("供应商")
     private String supplier;
 
-    @ApiModelProperty("物料条码")
-    private String mcode;
+    @ApiModelProperty("关联单据")
+    private byte[] relationItem;
 
-    @ApiModelProperty("物料名称")
-    private String name;
-
-    @ApiModelProperty("规格")
-    private String param;
-
-    @ApiModelProperty("采购数量")
-    private Integer number;
-
-    @ApiModelProperty("单价")
-    private BigDecimal price;
-
-    @ApiModelProperty("税前总价")
-    private BigDecimal allPrice;
+    @ApiModelProperty("交易凭据")
+    private byte[] txId;
 
     @ApiModelProperty("税率")
     private String tax;
@@ -57,28 +46,30 @@ public class PurchaseOrder implements Serializable {
     @ApiModelProperty("税额")
     private BigDecimal taxPrice;
 
-    @ApiModelProperty("税额合计")
-    private BigDecimal allTaxPrice;
+    @ApiModelProperty("税前总价")
+    private BigDecimal allPrice;
 
-    @ApiModelProperty("已收数量")
-    private Integer numbered;
-
-    @ApiModelProperty("代收数量")
-    private Integer numbering;
+    @ApiModelProperty("税后总价")
+    private BigDecimal totalPrice;
 
     @ApiModelProperty("备注")
     private String remark;
 
-    @ApiModelProperty("单据状态，0-未完成，1-已取消，2-已完成，默认0")
+    @ApiModelProperty("单据状态，0-未审核，1-已审核，2-待付款，3待收货，4-已完成，5已取消，默认0")
     private Integer status;
 
     @ApiModelProperty("创建时间")
+    @TableField(fill = FieldFill.INSERT)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private LocalDateTime createTime;
 
-    @ApiModelProperty("更新时间")
+    @ApiModelProperty("跟新时间")
+    @TableField(fill = FieldFill.UPDATE)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private LocalDateTime updateTime;
 
     @ApiModelProperty("删除标记，0未删除，1删除，默认0")
+    @TableLogic
     private Integer isDelete;
 
     public String getId() {
@@ -88,19 +79,19 @@ public class PurchaseOrder implements Serializable {
     public void setId(String id) {
         this.id = id;
     }
-    public String getRelationItem() {
-        return relationItem;
-    }
-
-    public void setRelationItem(String relationItem) {
-        this.relationItem = relationItem;
-    }
     public String getCode() {
         return code;
     }
 
     public void setCode(String code) {
         this.code = code;
+    }
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
     public String getSupplier() {
         return supplier;
@@ -109,47 +100,19 @@ public class PurchaseOrder implements Serializable {
     public void setSupplier(String supplier) {
         this.supplier = supplier;
     }
-    public String getMcode() {
-        return mcode;
+    public byte[] getRelationItem() {
+        return relationItem;
     }
 
-    public void setMcode(String mcode) {
-        this.mcode = mcode;
+    public void setRelationItem(byte[] relationItem) {
+        this.relationItem = relationItem;
     }
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-    public String getParam() {
-        return param;
+    public byte[] getTxId() {
+        return txId;
     }
 
-    public void setParam(String param) {
-        this.param = param;
-    }
-    public Integer getNumber() {
-        return number;
-    }
-
-    public void setNumber(Integer number) {
-        this.number = number;
-    }
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-    public BigDecimal getAllPrice() {
-        return allPrice;
-    }
-
-    public void setAllPrice(BigDecimal allPrice) {
-        this.allPrice = allPrice;
+    public void setTxId(byte[] txId) {
+        this.txId = txId;
     }
     public String getTax() {
         return tax;
@@ -165,26 +128,19 @@ public class PurchaseOrder implements Serializable {
     public void setTaxPrice(BigDecimal taxPrice) {
         this.taxPrice = taxPrice;
     }
-    public BigDecimal getAllTaxPrice() {
-        return allTaxPrice;
+    public BigDecimal getAllPrice() {
+        return allPrice;
     }
 
-    public void setAllTaxPrice(BigDecimal allTaxPrice) {
-        this.allTaxPrice = allTaxPrice;
+    public void setAllPrice(BigDecimal allPrice) {
+        this.allPrice = allPrice;
     }
-    public Integer getNumbered() {
-        return numbered;
-    }
-
-    public void setNumbered(Integer numbered) {
-        this.numbered = numbered;
-    }
-    public Integer getNumbering() {
-        return numbering;
+    public BigDecimal getTotalPrice() {
+        return totalPrice;
     }
 
-    public void setNumbering(Integer numbering) {
-        this.numbering = numbering;
+    public void setTotalPrice(BigDecimal totalPrice) {
+        this.totalPrice = totalPrice;
     }
     public String getRemark() {
         return remark;
@@ -224,22 +180,17 @@ public class PurchaseOrder implements Serializable {
 
     @Override
     public String toString() {
-        return "PurchaseOrder{" +
+        return "Purchase{" +
             "id=" + id +
-            ", relationItem=" + relationItem +
             ", code=" + code +
+            ", type=" + type +
             ", supplier=" + supplier +
-            ", mcode=" + mcode +
-            ", name=" + name +
-            ", param=" + param +
-            ", number=" + number +
-            ", price=" + price +
-            ", allPrice=" + allPrice +
+            ", relationItem=" + relationItem +
+            ", txId=" + txId +
             ", tax=" + tax +
             ", taxPrice=" + taxPrice +
-            ", allTaxPrice=" + allTaxPrice +
-            ", numbered=" + numbered +
-            ", numbering=" + numbering +
+            ", allPrice=" + allPrice +
+            ", totalPrice=" + totalPrice +
             ", remark=" + remark +
             ", status=" + status +
             ", createTime=" + createTime +

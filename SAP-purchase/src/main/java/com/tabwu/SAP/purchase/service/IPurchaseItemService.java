@@ -1,6 +1,6 @@
 package com.tabwu.SAP.purchase.service;
 
-import com.tabwu.SAP.purchase.entity.PurchaseNeed;
+import com.tabwu.SAP.purchase.entity.PurchaseItem;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -9,8 +9,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * </p>
  *
  * @author tabwu
- * @since 2022-06-23
+ * @since 2022-06-29
  */
-public interface IPurchaseNeedService extends IService<PurchaseNeed> {
+public interface IPurchaseItemService extends IService<PurchaseItem> {
 
 }

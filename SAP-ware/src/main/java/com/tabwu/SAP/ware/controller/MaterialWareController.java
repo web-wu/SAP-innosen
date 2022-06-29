@@ -117,13 +117,6 @@ public class MaterialWareController {
         return R.ok();
     }
 
-   /* @PutMapping("/update")
-    @ApiOperation(value = "修改仓库")
-    public R updateById(@ApiParam(name = "ware",value = "ware",required = true)
-                        @RequestBody Ware ware) {
-        wareService.updateById(ware);
-        return R.ok();
-    }*/
 
     @GetMapping("/findOne/{id}")
     @ApiOperation(value = "根据id查询物料库存")
