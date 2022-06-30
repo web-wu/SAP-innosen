@@ -11,11 +11,13 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
 /**
  * @author tabwu
  * @since 2022-06-29
  */
+@Data
 @TableName("yls_purchase")
 @ApiModel(value = "Purchase对象", description = "")
 public class Purchase implements Serializable {
@@ -35,10 +37,13 @@ public class Purchase implements Serializable {
     private String supplier;
 
     @ApiModelProperty("关联单据")
-    private byte[] relationItem;
+    private String relationItem;
 
     @ApiModelProperty("交易凭据")
-    private byte[] txId;
+    private String txId;
+
+    @ApiModelProperty("采购员")
+    private String purchaser;
 
     @ApiModelProperty("税率")
     private String tax;
@@ -72,130 +77,4 @@ public class Purchase implements Serializable {
     @TableLogic
     private Integer isDelete;
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-    public Integer getType() {
-        return type;
-    }
-
-    public void setType(Integer type) {
-        this.type = type;
-    }
-    public String getSupplier() {
-        return supplier;
-    }
-
-    public void setSupplier(String supplier) {
-        this.supplier = supplier;
-    }
-    public byte[] getRelationItem() {
-        return relationItem;
-    }
-
-    public void setRelationItem(byte[] relationItem) {
-        this.relationItem = relationItem;
-    }
-    public byte[] getTxId() {
-        return txId;
-    }
-
-    public void setTxId(byte[] txId) {
-        this.txId = txId;
-    }
-    public String getTax() {
-        return tax;
-    }
-
-    public void setTax(String tax) {
-        this.tax = tax;
-    }
-    public BigDecimal getTaxPrice() {
-        return taxPrice;
-    }
-
-    public void setTaxPrice(BigDecimal taxPrice) {
-        this.taxPrice = taxPrice;
-    }
-    public BigDecimal getAllPrice() {
-        return allPrice;
-    }
-
-    public void setAllPrice(BigDecimal allPrice) {
-        this.allPrice = allPrice;
-    }
-    public BigDecimal getTotalPrice() {
-        return totalPrice;
-    }
-
-    public void setTotalPrice(BigDecimal totalPrice) {
-        this.totalPrice = totalPrice;
-    }
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-    public LocalDateTime getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(LocalDateTime createTime) {
-        this.createTime = createTime;
-    }
-    public LocalDateTime getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(LocalDateTime updateTime) {
-        this.updateTime = updateTime;
-    }
-    public Integer getIsDelete() {
-        return isDelete;
-    }
-
-    public void setIsDelete(Integer isDelete) {
-        this.isDelete = isDelete;
-    }
-
-    @Override
-    public String toString() {
-        return "Purchase{" +
-            "id=" + id +
-            ", code=" + code +
-            ", type=" + type +
-            ", supplier=" + supplier +
-            ", relationItem=" + relationItem +
-            ", txId=" + txId +
-            ", tax=" + tax +
-            ", taxPrice=" + taxPrice +
-            ", allPrice=" + allPrice +
-            ", totalPrice=" + totalPrice +
-            ", remark=" + remark +
-            ", status=" + status +
-            ", createTime=" + createTime +
-            ", updateTime=" + updateTime +
-            ", isDelete=" + isDelete +
-        "}";
-    }
 }

@@ -6,7 +6,9 @@ import com.tabwu.SAP.purchase.entity.vo.PurchaseQueryVo;
 import com.tabwu.SAP.purchase.entity.vo.PurchaseVo;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * <p>
@@ -27,4 +29,6 @@ public interface IPurchaseService extends IService<Purchase> {
     Map<String, Object> listPage(PurchaseQueryVo purchaseQueryVo);
 
     ArrayList<PurchaseVo> findList(PurchaseQueryVo purchaseQueryVo);
+
+    HashMap<String, Object> findPurchaseOrder(String id) throws ExecutionException, InterruptedException;
 }

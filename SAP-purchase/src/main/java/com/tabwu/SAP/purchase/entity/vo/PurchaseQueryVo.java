@@ -34,4 +34,7 @@ public class PurchaseQueryVo {
 
     @ApiModelProperty("单据状态，0-未审核，1-已审核，2-待付款，3待收货，4-已完成，5已取消，默认0")
     private Integer status;
+
+    @ApiModelProperty("采购员")
+    private String purchaser;
 }

@@ -68,6 +68,16 @@ public class UserController {
         return R.ok().data("user",user);
     }
 
+
+    @GetMapping("/findUser/{username}")
+    @ApiOperation(value = "根据用户名查询用户")
+    public R findUserByUsername(@ApiParam(name = "username",value = "username",required = true)
+                         @PathVariable("username") String username) {
+        User user = userService.getOne(new QueryWrapper<User>().eq("username",username));
+        return R.ok().data("user",user);
+    }
+
+
     @GetMapping("/list")
     @ApiOperation(value = "查询所有用户")
     public R list() {

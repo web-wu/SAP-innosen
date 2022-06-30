@@ -1,7 +1,9 @@
 package com.tabwu.SAP.purchase.controller;
 
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
+import cn.afterturn.easypoi.excel.ExcelExportUtil;
+import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.tabwu.SAP.common.entity.R;
 import com.tabwu.SAP.common.exception.CostomException;
@@ -11,16 +13,17 @@ import com.tabwu.SAP.purchase.entity.vo.PurchaseQueryVo;
 import com.tabwu.SAP.purchase.entity.vo.PurchaseVo;
 import com.tabwu.SAP.purchase.service.IPurchaseItemService;
 import com.tabwu.SAP.purchase.service.IPurchaseService;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.springframework.beans.BeanUtils;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -32,7 +35,8 @@ import java.util.Map;
 public class PurchaseController {
     @Autowired
     private IPurchaseService purchaseService;
-
+    @Autowired
+    private IPurchaseItemService purchaseItemService;
 
     @PostMapping("/add")
     @ApiOperation("添加采购单据")
@@ -44,10 +48,14 @@ public class PurchaseController {
 
     @DeleteMapping("/delete/{id}")
     @ApiOperation("删除采购单据")
-    public R delete(@ApiParam(name = "type",value = "单据类型",required = true)
+    public R delete(@ApiParam(name = "id",value = "id",required = true)
                      @PathVariable("id") String id) {
+        Purchase purchase = purchaseService.getById(id);
+        if (purchase == null) {
+            throw new CostomException(20004,"未找到id为：" + id + "的物料！！！");
+        }
         purchaseService.remove(new UpdateWrapper<Purchase>().eq("id",id));
-        // TODO 删除字表记录
+        purchaseItemService.remove(new UpdateWrapper<PurchaseItem>().eq("pcode",purchase.getCode()));
         return R.ok();
     }
 
@@ -84,15 +92,35 @@ public class PurchaseController {
     }
 
 
-    @GetMapping("/approve/{id}/{status}")
-    @ApiOperation("审核采购需求订单")
-    public R approvePurchase(@PathVariable("id") String id,@PathVariable("status") Integer status) {
+
+    @GetMapping("/approve/{id}/{status}/{purchaser}")
+    @ApiOperation("审核采购需求订单时为采购订单分配采购员")
+    public R approvePurchase(@PathVariable("id") String id,@PathVariable("status") Integer status,@PathVariable(value = "purchaser",required = false) String purchaser) {
         Purchase purchase = purchaseService.getById(id);
         if (purchase == null) {
             throw new CostomException(20004,"未找到id为" + id + "的单据");
         }
         purchase.setStatus(status);
+        purchase.setPurchaser(purchaser);
         purchaseService.updateById(purchase);
         return R.ok();
+    }
+
+
+    @GetMapping("/exportOrder/{id}")
+    @ApiOperation("以excel格式导出采购订单表")
+    public void exportPurchaseOrder(@ApiParam(name = "id",value = "采购订单id",required = true)
+                                        @PathVariable("id") String id, HttpServletResponse response) {
+        try {
+            TemplateExportParams params = new TemplateExportParams("SAP-purchase/src/main/resources/static/purchaseOrder-template.xlsx");
+            HashMap<String,Object> dataMap = purchaseService.findPurchaseOrder(id);
+            Workbook workbook = ExcelExportUtil.exportExcel(params, dataMap);
+            response.setCharacterEncoding("UTF-8");
+            response.setHeader("content-Type", "application/vnd.ms-excel");
+            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode( "采购订单.xlsx", "UTF-8"));
+            workbook.write(response.getOutputStream());
+        } catch (Exception e) {
+            throw new CostomException(20004,"导出采购订单出现异常！！！" + e.getMessage());
+        }
     }
 }

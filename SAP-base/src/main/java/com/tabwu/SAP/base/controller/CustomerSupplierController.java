@@ -4,6 +4,7 @@ import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.tabwu.SAP.base.entity.CustomerSupplier;
 import com.tabwu.SAP.base.entity.vo.CustomerSupplierVo;
 import com.tabwu.SAP.base.service.ICustomerSupplierService;
@@ -104,6 +105,14 @@ public class CustomerSupplierController {
     public R findOneById(@ApiParam(name = "id",value = "id",required = true)
                          @PathVariable("id") String id) {
         CustomerSupplier customerSupplier = customerSupplierService.getById(id);
+        return R.ok().data("customerSupplier",customerSupplier);
+    }
+
+    @GetMapping("/findCompany/{company}")
+    @ApiOperation(value = "根据公司名称查询客户-供应商")
+    public R findCostomerSupplierByCompanyName(@ApiParam(name = "company",value = "公司名称",required = true)
+                         @PathVariable("company") String company) {
+        CustomerSupplier customerSupplier = customerSupplierService.getOne(new QueryWrapper<CustomerSupplier>().eq("company_name",company));
         return R.ok().data("customerSupplier",customerSupplier);
     }
 
