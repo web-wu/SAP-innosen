@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.tabwu.SAP.common.entity.R;
 import com.tabwu.SAP.user.entity.Permission;
 import com.tabwu.SAP.user.entity.Role;
+import com.tabwu.SAP.user.entity.To.UserTo;
 import com.tabwu.SAP.user.entity.User;
 import com.tabwu.SAP.user.entity.UserRole;
 import com.tabwu.SAP.user.service.IRoleService;
@@ -15,6 +16,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -74,7 +76,9 @@ public class UserController {
     public R findUserByUsername(@ApiParam(name = "username",value = "username",required = true)
                          @PathVariable("username") String username) {
         User user = userService.getOne(new QueryWrapper<User>().eq("username",username));
-        return R.ok().data("user",user);
+        UserTo userTo = new UserTo();
+        BeanUtils.copyProperties(user,userTo);
+        return R.ok().data("user",userTo);
     }
 
 

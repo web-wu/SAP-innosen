@@ -23,7 +23,6 @@ public class PurchaseItem implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty("主键")
-//    @TableId(type = IdType.INPUT)
     private String id;
 
     @ApiModelProperty("父单据编号")

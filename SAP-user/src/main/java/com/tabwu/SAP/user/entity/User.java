@@ -74,6 +74,6 @@ public class User implements Serializable {
     @TableField(fill = FieldFill.UPDATE)
     private LocalDateTime updateTime;
 
-
+    @TableField(exist = false)
     private List<Role> roles;
 }

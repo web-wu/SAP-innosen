@@ -6,6 +6,7 @@ import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.tabwu.SAP.base.entity.CustomerSupplier;
+import com.tabwu.SAP.base.entity.To.CostomerSupplierTo;
 import com.tabwu.SAP.base.entity.vo.CustomerSupplierVo;
 import com.tabwu.SAP.base.service.ICustomerSupplierService;
 import com.tabwu.SAP.common.entity.R;
@@ -15,6 +16,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -113,7 +115,9 @@ public class CustomerSupplierController {
     public R findCostomerSupplierByCompanyName(@ApiParam(name = "company",value = "公司名称",required = true)
                          @PathVariable("company") String company) {
         CustomerSupplier customerSupplier = customerSupplierService.getOne(new QueryWrapper<CustomerSupplier>().eq("company_name",company));
-        return R.ok().data("customerSupplier",customerSupplier);
+        CostomerSupplierTo costomerSupplierTo = new CostomerSupplierTo();
+        BeanUtils.copyProperties(customerSupplier,costomerSupplierTo);
+        return R.ok().data("customerSupplier",costomerSupplierTo);
     }
 
 

@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.tabwu.SAP.common.entity.R;
 import com.tabwu.SAP.purchase.entity.*;
+import com.tabwu.SAP.purchase.entity.To.CostomerSupplierTo;
+import com.tabwu.SAP.purchase.entity.To.UserTo;
 import com.tabwu.SAP.purchase.entity.vo.PurchaseQueryVo;
 import com.tabwu.SAP.purchase.entity.vo.PurchaseVo;
 import com.tabwu.SAP.purchase.feign.CostomerSupplierFeign;
@@ -20,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -200,40 +201,69 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseMapper, Purchase> i
         }, executor);
 
         CompletableFuture<Void> purchaseItemsFuture = purchaseFuture.thenAcceptAsync(purchase -> {
-            List<PurchaseItem> purchaseItems = purchaseItemService.list(new QueryWrapper<PurchaseItem>().eq("pcode", purchase.getCode()));
-            hashMap.put("dataList",purchaseItems);
-            hashMap.put("code",purchase.getCode());
-            hashMap.put("tx_id",purchase.getTxId());
-            hashMap.put("tax",purchase.getTax());
-            hashMap.put("taxPrice",purchase.getTaxPrice());
-            hashMap.put("allPrice",purchase.getAllPrice());
-            hashMap.put("totalPrice",purchase.getTotalPrice());
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            hashMap.put("data",format.format(new Date()));
+            handlerQueryPurchase(hashMap, purchase);
         }, executor);
 
         CompletableFuture<Void> customerSupplierFuture = purchaseFuture.thenAcceptAsync(purchase -> {
-            R supplierDate = costomerSupplierFeign.findCostomerSupplierByCompanyName(purchase.getSupplier());
-            CustomerSupplier customerSupplier = JSON.parseObject(JSON.toJSONString(supplierDate.getData().get("customerSupplier")),CustomerSupplier.class);
-            hashMap.put("supplier_company",customerSupplier.getCompanyName());
-            hashMap.put("supplier_contact",customerSupplier.getContact());
-            hashMap.put("supplier_tel",customerSupplier.getTel());
-            hashMap.put("supplier_email",customerSupplier.getEmail());
-            hashMap.put("supplier_address",customerSupplier.getAddress());
+            handlerQuerySupplier(hashMap, purchase);
         }, executor);
 
         CompletableFuture<Void> userFuture = purchaseFuture.thenAcceptAsync(purchase -> {
-            R userData = userFeign.findUserByUsername(purchase.getPurchaser());
-            User user = JSON.parseObject(JSON.toJSONString(userData.getData().get("user")), User.class);
-            hashMap.put("company","易良盛科技(天津)有限公司");
-            hashMap.put("contact",user.getUsername());
-            hashMap.put("tel",user.getTel());
-            hashMap.put("email",user.getEmail());
-            hashMap.put("address",user.getAddress());
+            handlerQueryPurchaser(hashMap, purchase);
         }, executor);
 
         CompletableFuture.allOf(purchaseFuture,purchaseItemsFuture,customerSupplierFuture,userFuture).get();
 
         return hashMap;
+    }
+
+    private void handlerQueryPurchaser(HashMap<String, Object> hashMap, Purchase purchase) {
+        R userData = userFeign.findUserByUsername(purchase.getPurchaser());
+        UserTo user = JSON.parseObject(JSON.toJSONString(userData.getData().get("user")), UserTo.class);
+        hashMap.put("company","易良盛科技(天津)有限公司");
+        hashMap.put("contact",user.getUsername());
+        hashMap.put("tel",user.getTel());
+        hashMap.put("email",user.getEmail());
+        hashMap.put("address",user.getAddress());
+    }
+
+    private void handlerQuerySupplier(HashMap<String, Object> hashMap, Purchase purchase) {
+        R supplierDate = costomerSupplierFeign.findCostomerSupplierByCompanyName(purchase.getSupplier());
+        CostomerSupplierTo customerSupplier = JSON.parseObject(JSON.toJSONString(supplierDate.getData().get("customerSupplier")), CostomerSupplierTo.class);
+        hashMap.put("supplier_company",customerSupplier.getCompanyName());
+        hashMap.put("supplier_contact",customerSupplier.getContact());
+        hashMap.put("supplier_tel",customerSupplier.getTel());
+        hashMap.put("supplier_email",customerSupplier.getEmail());
+        hashMap.put("supplier_address",customerSupplier.getAddress());
+    }
+
+    private void handlerQueryPurchase(HashMap<String, Object> hashMap, Purchase purchase) {
+        List<PurchaseItem> purchaseItems = purchaseItemService.list(new QueryWrapper<PurchaseItem>().eq("pcode", purchase.getCode()));
+        ArrayList<Map<String, String>> dataList = new ArrayList<>();
+        for (int i = 0; i < purchaseItems.size(); i++) {
+            HashMap<String, String> mapItem = new HashMap<>();
+            mapItem.put("index", i + 1 + "" );
+            mapItem.put("mcode",purchaseItems.get(i).getMcode());
+            mapItem.put("name",purchaseItems.get(i).getName());
+            mapItem.put("lot",purchaseItems.get(i).getLot());
+            mapItem.put("param",purchaseItems.get(i).getParam());
+            mapItem.put("number",purchaseItems.get(i).getNumber().toString());
+            mapItem.put("price",purchaseItems.get(i).getPrice().toString());
+            mapItem.put("tax",purchaseItems.get(i).getTax());
+            mapItem.put("allTax",purchaseItems.get(i).getAllTax().toString());
+            mapItem.put("allPrice",purchaseItems.get(i).getAllPrice().toString());
+            mapItem.put("totalPrice",purchaseItems.get(i).getTotalPrice().toString());
+            dataList.add(mapItem);
+        }
+        hashMap.put("dataList",dataList);
+        hashMap.put("code", purchase.getCode());
+        hashMap.put("tx_id", purchase.getTxId());
+        hashMap.put("tax", purchase.getTax());
+        hashMap.put("taxPrice", purchase.getTaxPrice());
+        hashMap.put("allPrice", purchase.getAllPrice());
+        hashMap.put("totalPrice", purchase.getTotalPrice());
+        hashMap.put("remark", purchase.getRemark());
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        hashMap.put("data",format.format(new Date()));
     }
 }
