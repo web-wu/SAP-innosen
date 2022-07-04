@@ -1,4 +1,4 @@
-package com.tabwu.SAP.purchase.controller;
+package com.tabwu.SAP.sale.controller;
 
 
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author tabwu
- * @since 2022-06-29
+ * @since 2022-07-04
  */
 @RestController
-@RequestMapping("/purchase/purchase-item")
-public class PurchaseItemController {
+@RequestMapping("/sale/sale-item")
+public class SaleItemController {
 
 }

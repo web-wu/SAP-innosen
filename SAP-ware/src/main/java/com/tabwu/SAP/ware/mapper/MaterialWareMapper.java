@@ -13,4 +13,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface MaterialWareMapper extends BaseMapper<MaterialWare> {
 
+    long reduceWareStockByCondition(String wareId, String mcode, String localStorageId, String lot,int number);
 }

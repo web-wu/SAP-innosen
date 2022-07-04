@@ -14,6 +14,7 @@
         <module>SAP-base</module>
         <module>SAP-user</module>
         <module>SAP-purchase</module>
+        <module>SAP-sale</module>
     </modules>
 
     <properties>

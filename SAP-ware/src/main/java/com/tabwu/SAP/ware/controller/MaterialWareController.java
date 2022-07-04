@@ -13,6 +13,7 @@ import com.tabwu.SAP.common.utils.PageUtil;
 import com.tabwu.SAP.ware.entity.MaterialWare;
 import com.tabwu.SAP.ware.entity.Ware;
 import com.tabwu.SAP.ware.entity.WareStorage;
+import com.tabwu.SAP.ware.entity.to.WareStockTo;
 import com.tabwu.SAP.ware.entity.vo.MaterialWareVo;
 import com.tabwu.SAP.ware.service.IMaterialWareService;
 import io.swagger.annotations.ApiOperation;
@@ -162,6 +163,24 @@ public class MaterialWareController {
         materialWareService.page(page,wrapper);
         Map<String, Object> map = PageUtil.queryPage(page);
         return R.ok().data("page",map);
+    }
+
+
+    @PostMapping("/checkStock")
+    @ApiOperation(value = "根据物料条码、类型、仓库、库位。批号检查仓库中的物料数量")
+    public R checkStockByMcode(@ApiParam(name = "WareStockTo",value = "WareStockTo",required = true)
+                                   @RequestBody WareStockTo wareStockTo) {
+        Integer num = materialWareService.checkStockByMcode(wareStockTo);
+        return R.ok().data("num",num);
+    }
+
+
+    @PostMapping("/reduceStock")
+    @ApiOperation(value = "根据物料条码、类型、仓库、库位。批号扣减仓库中的物料数量")
+    public R reduceWareStockByCondition(@ApiParam(name = "wareStockTos",value = "wareStockTos",required = true)
+                                            @RequestBody List<WareStockTo> wareStockTos) {
+        boolean flag = materialWareService.reduceWareStockByCondition(wareStockTos);
+        return flag ? R.ok() : R.error();
     }
 }
 
