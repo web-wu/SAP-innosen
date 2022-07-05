@@ -17,6 +17,7 @@ public interface ISaleService extends IService<Sale> {
 
     HashMap<String,Object> pageList(SaleQueryVo saleQueryVo);
 
-
     boolean updateSaleOrder(SaleVo saleVo);
+
+    Boolean deleteSaleById(String id);
 }

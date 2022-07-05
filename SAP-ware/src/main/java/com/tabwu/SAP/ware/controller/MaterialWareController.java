@@ -168,10 +168,10 @@ public class MaterialWareController {
 
     @PostMapping("/checkStock")
     @ApiOperation(value = "根据物料条码、类型、仓库、库位。批号检查仓库中的物料数量")
-    public R checkStockByMcode(@ApiParam(name = "WareStockTo",value = "WareStockTo",required = true)
-                                   @RequestBody WareStockTo wareStockTo) {
-        Integer num = materialWareService.checkStockByMcode(wareStockTo);
-        return R.ok().data("num",num);
+    public R checkStockByMcode(@ApiParam(name = "wareStockTos",value = "WareStockTo集合",required = true)
+                                   @RequestBody List<WareStockTo> wareStockTos) {
+        boolean flag = materialWareService.checkStockByMcode(wareStockTos);
+        return flag ? R.ok().message("物料库存足够") : R.error().message("物料库存不足");
     }
 
 

@@ -3,7 +3,7 @@
 <mapper namespace="com.tabwu.SAP.ware.mapper.MaterialWareMapper">
 
     <update id="reduceWareStockByCondition">
-        UPDATE yls_material_ware SET stock = stock - #{number}
+        UPDATE yls_material_ware SET stock = stock + #{number}
         WHERE m_type = 3 AND wid = #{wareId} AND mid = #{mcode} AND lot = #{lot} AND lid = #{localStorageId};
     </update>
 </mapper>

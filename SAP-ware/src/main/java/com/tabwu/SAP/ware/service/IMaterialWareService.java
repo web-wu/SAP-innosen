@@ -16,7 +16,7 @@ import java.util.List;
  */
 public interface IMaterialWareService extends IService<MaterialWare> {
 
-    Integer checkStockByMcode(WareStockTo wareStockTo);
+    boolean checkStockByMcode(List<WareStockTo> wareStockTos);
 
     boolean reduceWareStockByCondition(List<WareStockTo> wareStockTos);
 }

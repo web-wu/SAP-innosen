@@ -21,8 +21,8 @@ public interface MaterialStockFeign {
 
     @PostMapping("/ware/material-ware/checkStock/{mcode}")
     @ApiOperation(value = "根据物料条码、类型、仓库、库位。批号检查仓库中的物料数量")
-    R checkStockByMcode(@ApiParam(name = "WareStockTo",value = "WareStockTo",required = true)
-                                   @RequestBody WareStockTo wareStockTo);
+    R checkStockByMcode(@ApiParam(name = "wareStockTos",value = "WareStockTo集合",required = true)
+                                   @RequestBody List<WareStockTo> wareStockTos);
 
 
     @PostMapping("/ware/material-ware/reduceStock")
