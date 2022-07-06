@@ -1,4 +1,4 @@
-package com.tabwu.SAP.sale.constant;
+package com.tabwu.SAP.common.constant;
 
 /**
  * @PROJECT_NAME: SAP-innosen
@@ -15,5 +15,9 @@ public class RabbitStaticConstant {
     public static final String saleMaterialOutputQueue = "saleMaterialOutputQueue";
     public static final String saleMaterialReturnQueue = "saleMaterialReturnQueue";
     public static final String saleOrderCreateSuccessQueue = "saleOrderCreateSuccessQueue";
-    public static final String saleOrderPayQueue = "saleOrderPayQueue";
+    public static final String saleOrderReceiptQueue = "saleOrderReceiptQueue";
+    public static final String saleOrderRefundQueue = "saleOrderRefundQueue";
+
+    public static final String purchaseOrderPayQueue = "purchaseOrderPayQueue";
+
 }

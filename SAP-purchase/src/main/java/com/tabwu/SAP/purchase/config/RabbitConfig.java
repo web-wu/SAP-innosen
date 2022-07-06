@@ -1,8 +1,7 @@
-package com.tabwu.SAP.sale.config;
+package com.tabwu.SAP.purchase.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -10,7 +9,6 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 
 import javax.annotation.PostConstruct;
 
@@ -26,16 +24,6 @@ public class RabbitConfig implements RabbitTemplate.ConfirmCallback, RabbitTempl
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
-
-    /*@Primary
-    @Bean
-    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
-        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-        this.rabbitTemplate = rabbitTemplate;
-        rabbitTemplate.setMessageConverter(messageConverter());
-        return rabbitTemplate;
-    }*/
-
 
     @Bean
     // 当消息为对象时，使用Jackson序列化消息

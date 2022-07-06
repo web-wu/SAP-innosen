@@ -3,6 +3,8 @@ package com.tabwu.SAP.purchase.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.tabwu.SAP.common.constant.RabbitStaticConstant;
+import com.tabwu.SAP.common.entity.MqMsg;
 import com.tabwu.SAP.common.entity.R;
 import com.tabwu.SAP.purchase.entity.*;
 import com.tabwu.SAP.purchase.entity.To.CostomerSupplierTo;
@@ -16,6 +18,8 @@ import com.tabwu.SAP.purchase.mapper.PurchaseMapper;
 import com.tabwu.SAP.purchase.service.IPurchaseItemService;
 import com.tabwu.SAP.purchase.service.IPurchaseService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,6 +49,8 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseMapper, Purchase> i
     private UserFeign userFeign;
     @Autowired
     private Executor executor;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     @Override
     @Transactional
@@ -55,24 +61,42 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseMapper, Purchase> i
         if (insert > 0) {
             List<PurchaseItem> purchaseItems = purchaseVo.getPurchaseItems();
             for (PurchaseItem purchaseItem : purchaseItems) {
-                PurchaseItem item = new PurchaseItem();
-                BeanUtils.copyProperties(purchaseItem,item);
-//                item.setId(purchase.getId());
-                item.setPcode(purchase.getCode());
-                purchaseItemService.save(item);
+                purchaseItem.setId("");
+                purchaseItem.setPcode(purchase.getCode());
+
+                purchaseItemService.save(purchaseItem);
+
                 // 如果单据类型是收货单时，应该给该物料做相应的入库操作  TODO 远程添加库存时需要分布式事务保证数据一致性
                 if (purchaseVo.getType() == 3) {
                     operatePurchaseInputWare(purchase, purchaseItem);
                 }
 
-                // 如果单据类型是退货单时，应该给该物料做相应的回退库存操作   TODO
+                // 如果单据类型是退货单时，应该给该物料做相应的回退库存操作
                 if (purchaseVo.getType() == 4) {
                     operatePurchaseReture(purchase, purchaseItem);
                 }
             }
+
+            // 如果单据是采购订单时--2，需要发送消息给MQ，通知财务服务生成付款订单完成付款
+            if (purchaseVo.getType() == 2) {
+                sendMsgnotifyGeneratePayBills(purchase);
+            }
             return true;
         }
         return false;
+    }
+
+    private void sendMsgnotifyGeneratePayBills(Purchase purchase) {
+        CorrelationData correlationData = new CorrelationData();
+        correlationData.setId(purchase.getCode());
+        MqMsg mqMsg = new MqMsg();
+        mqMsg.setItemId(purchase.getId());
+        mqMsg.setCode(purchase.getCode());
+        mqMsg.setTax(purchase.getTax());
+        mqMsg.setAllTax(purchase.getTaxPrice());
+        mqMsg.setAllPrice(purchase.getAllPrice());
+        mqMsg.setTotalPrice(purchase.getTotalPrice());
+        rabbitTemplate.convertAndSend(RabbitStaticConstant.innosen_topic,"purchase.pay",mqMsg,correlationData);
     }
 
     private void operatePurchaseReture(Purchase purchase, PurchaseItem purchaseItem) {

@@ -1,5 +1,8 @@
 package com.tabwu.SAP.sale.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -69,12 +72,15 @@ public class SaleItem implements Serializable {
     private String localStorageId;
 
     @ApiModelProperty("单据创建时间")
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     @ApiModelProperty("单据修改时间")
+    @TableField(fill = FieldFill.UPDATE)
     private LocalDateTime updateTime;
 
     @ApiModelProperty("删除标记，0未删除，1删除，默认0")
+    @TableLogic
     private Integer isDelete;
 
     public String getId() {

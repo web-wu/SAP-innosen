@@ -1,6 +1,8 @@
 package com.tabwu.SAP.sale.controller;
 
 
+import cn.afterturn.easypoi.excel.ExcelExportUtil;
+import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.tabwu.SAP.common.entity.R;
@@ -15,11 +17,14 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 
@@ -89,5 +94,46 @@ public class SaleController {
         boolean update = saleService.update(null, new UpdateWrapper<Sale>().eq("id", id).set("status", status));
         return update ? R.ok() : R.error();
     }
+
+
+    @GetMapping("/comfirmedReturn/{id}")
+    @ApiOperation("根据id确认退货成功修改单据状态")
+    public R comfirmedReturnSuccessful(@ApiParam(name = "id",value = "退货单据id",required = true)
+                                           @PathVariable("id") String id) {
+        boolean flag = saleService.comfirmedReturnSuccess(id);
+        return flag ? R.ok() : R.error();
+    }
+
+
+
+    @PostMapping("/exportBills/{id}/{type}")
+    @ApiOperation("根据id确认退货成功修改单据状态")
+    public void excelExportSaleBillsInformation(@ApiParam(name = "type",value = "单据类型，1-销售订单，2-销售出库单，3-销售退货单",required = true)
+                                                 @PathVariable("id") String id, @PathVariable("type") Integer type, HttpServletResponse response) {
+        try {
+            String billsName = null;
+            TemplateExportParams params = null;
+            if (type == 1) {
+                billsName = "销售订单";
+                params = new TemplateExportParams("SAP-purchase/src/main/resources/static/purchaseOrder-template.xlsx");
+            } else if (type == 2) {
+                billsName = "销售物料出货单";
+                params = new TemplateExportParams("SAP-purchase/src/main/resources/static/purchaseOrder-template.xlsx");
+            } else {
+                billsName = "销售物料退货单";
+                params = new TemplateExportParams("SAP-purchase/src/main/resources/static/purchaseOrder-template.xlsx");
+            }
+
+            HashMap<String,Object> dataMap = saleService.excelExportSaleBillsInformation(id);
+            Workbook workbook = ExcelExportUtil.exportExcel(params, dataMap);
+            response.setCharacterEncoding("UTF-8");
+            response.setHeader("content-Type", "application/vnd.ms-excel");
+            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode( billsName + ".xlsx", "UTF-8"));
+            workbook.write(response.getOutputStream());
+        } catch (Exception e) {
+            throw new CostomException(20004,"导出销售出现异常！！！" + e.getMessage());
+        }
+    }
+
 
 }

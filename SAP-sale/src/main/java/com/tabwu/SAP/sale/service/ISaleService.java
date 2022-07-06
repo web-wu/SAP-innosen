@@ -20,4 +20,8 @@ public interface ISaleService extends IService<Sale> {
     boolean updateSaleOrder(SaleVo saleVo);
 
     Boolean deleteSaleById(String id);
+
+    boolean comfirmedReturnSuccess(String id);
+
+    HashMap<String, Object> excelExportSaleBillsInformation(String id);
 }
