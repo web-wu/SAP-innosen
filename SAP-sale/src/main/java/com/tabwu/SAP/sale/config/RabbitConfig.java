@@ -1,7 +1,7 @@
 package com.tabwu.SAP.sale.config;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -35,6 +35,61 @@ public class RabbitConfig implements RabbitTemplate.ConfirmCallback, RabbitTempl
         rabbitTemplate.setMessageConverter(messageConverter());
         return rabbitTemplate;
     }*/
+
+
+    // 声明创建exchange、queue、与binding关系
+    /**
+     * 销售管理交换机
+     * @return
+     */
+    @Bean
+    public Exchange saleTopicExchange() {
+        return new TopicExchange("saleTopicExchange",true,false,null);
+    }
+
+    /**
+     * 订单收款队列，订单服务发生，财务服务监听
+     * @return
+     */
+    @Bean
+    public Queue saleReceiptQueue() {
+        return new Queue("saleReceiptQueue",true,false,false,null);
+    }
+
+    /**
+     * 订单收款成功队列，财务务发生，订单服务监听
+     * @return
+     */
+    @Bean
+    public Queue saleReceiptSuccessQueue() {
+        return new Queue("saleReceiptSuccessQueue",true,false,false,null);
+    }
+
+    /**
+     * 订单退款队列，订单服务发生，财务服务监听，客户退货成功后发送
+     * @return
+     */
+    @Bean
+    public Queue saleRefundQueue() {
+        return new Queue("saleRefundQueue",true,false,false,null);
+    }
+
+
+    @Bean
+    public Binding receiptBinding() {
+        return new Binding("saleReceiptQueue", Binding.DestinationType.QUEUE,"saleTopicExchange","#.sale.receipt.#",null);
+    }
+
+
+    @Bean
+    public Binding receiptSuccessBinding() {
+        return new Binding("saleReceiptSuccessQueue", Binding.DestinationType.QUEUE,"saleTopicExchange","#.sale.receipt.success.#",null);
+    }
+
+    @Bean
+    public Binding refundBinding() {
+        return new Binding("saleRefundQueue", Binding.DestinationType.QUEUE,"saleTopicExchange","#.sale.refund.#",null);
+    }
 
 
     @Bean

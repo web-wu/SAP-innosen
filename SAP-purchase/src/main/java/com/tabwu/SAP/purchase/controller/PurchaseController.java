@@ -107,6 +107,14 @@ public class PurchaseController {
     }
 
 
+    @GetMapping("/comfirmPurchaseInputSuccess/{id}/{status}")
+    @ApiOperation("确认采购收货成功，修改采购单据状态为已收货")
+    public R comfirmPurchaseInputSuccess(@PathVariable("id") String id,@PathVariable("status") Integer status) {
+        boolean flag = purchaseService.changePurchaseStatusById(id,status);
+        return flag ? R.ok() : R.error();
+    }
+
+
     @GetMapping("/exportOrder/{id}")
     @ApiOperation("以excel格式导出采购订单表")
     public void exportPurchaseOrder(@ApiParam(name = "id",value = "采购订单id",required = true)

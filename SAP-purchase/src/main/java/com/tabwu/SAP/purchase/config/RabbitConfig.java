@@ -1,7 +1,7 @@
 package com.tabwu.SAP.purchase.config;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -24,6 +24,79 @@ public class RabbitConfig implements RabbitTemplate.ConfirmCallback, RabbitTempl
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
+
+
+    // 声明创建exchange、queue、与binding关系
+    /**
+     * 采购管理交换机
+     * @return
+     */
+    @Bean
+    public Exchange purchaseTopicExchange() {
+        return new TopicExchange("purchaseTopicExchange",true,false,null);
+    }
+
+    /**
+     * 采购付款队列，采购服务发生，财务服务监听
+     * @return
+     */
+    @Bean
+    public Queue purchasePayQueue() {
+        return new Queue("purchasePayQueue",true,false,false,null);
+    }
+
+    /**
+     * 采购付款成功队列，财务务发生，采购服务监听
+     * @return
+     */
+    @Bean
+    public Queue purchasePaySuccessQueue() {
+        return new Queue("purchasePaySuccessQueue",true,false,false,null);
+    }
+
+    /**
+     * 采购退货收款队列，采购服务发生，财务服务监听，我司退货成功后发送
+     * @return
+     */
+    @Bean
+    public Queue purchaseReceiptQueue() {
+        return new Queue("purchaseReceiptQueue",true,false,false,null);
+    }
+
+
+    /**
+     * 采购退货收款成功队列，财务服务发生，采购服务监听
+     * @return
+     */
+    @Bean
+    public Queue purchaseReceiptSuccessQueue() {
+        return new Queue("purchaseReceiptSuccessQueue",true,false,false,null);
+    }
+
+
+    @Bean
+    public Binding payBinding() {
+        return new Binding("purchasePayQueue", Binding.DestinationType.QUEUE,"purchaseTopicExchange","#.purchase.pay.#",null);
+    }
+
+
+    @Bean
+    public Binding paySuccessBinding() {
+        return new Binding("purchasePaySuccessQueue", Binding.DestinationType.QUEUE,"purchaseTopicExchange","#.purchase.pay.success.#",null);
+    }
+
+    @Bean
+    public Binding receiptBinding() {
+        return new Binding("purchaseReceiptQueue", Binding.DestinationType.QUEUE,"purchaseTopicExchange","#.purchase.receipt.#",null);
+    }
+
+    @Bean
+    public Binding receiptSuccessBinding() {
+        return new Binding("purchaseReceiptSuccessQueue", Binding.DestinationType.QUEUE,"purchaseTopicExchange","#.purchase.receipt.success.#",null);
+    }
+
+
+
 
     @Bean
     // 当消息为对象时，使用Jackson序列化消息

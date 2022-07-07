@@ -31,4 +31,6 @@ public interface IPurchaseService extends IService<Purchase> {
     ArrayList<PurchaseVo> findList(PurchaseQueryVo purchaseQueryVo);
 
     HashMap<String, Object> findPurchaseOrder(String id) throws ExecutionException, InterruptedException;
+
+    boolean changePurchaseStatusById(String id,Integer status);
 }

@@ -69,14 +69,14 @@ public class SaleServiceImpl extends ServiceImpl<SaleMapper, Sale> implements IS
             // 3、销售订单添加成功后远程扣减物料库存
             reduceWareStockRemote(saleItems);
 
-            // 4、发送消息给MQ，财务服务根据销售订单自动生成付款订单
-            sendMsgNotifyGeneratePayBillsBySaleId(sale);
+            // 4、发送消息给MQ，财务服务根据销售订单自动生成收款订单
+            sendMsgNotifyGenerateReceiptBillsBySaleId(sale);
         }
 
         return true;
     }
 
-    private void sendMsgNotifyGeneratePayBillsBySaleId(Sale sale) {
+    private void sendMsgNotifyGenerateReceiptBillsBySaleId(Sale sale) {
         CorrelationData correlationData = new CorrelationData();
         correlationData.setId(sale.getCode());
         MqMsg mqMsg = new MqMsg();
@@ -86,12 +86,12 @@ public class SaleServiceImpl extends ServiceImpl<SaleMapper, Sale> implements IS
         mqMsg.setAllTax(sale.getAllTax());
         mqMsg.setAllPrice(sale.getAllPrice());
         mqMsg.setTotalPrice(sale.getTotalPrice());
-        rabbitTemplate.convertAndSend(RabbitStaticConstant.innosen_topic,"sale.receipt",mqMsg,correlationData);
+        rabbitTemplate.convertAndSend(RabbitStaticConstant.SALE_TOPIC_EXCHANGE,"sale.receipt",mqMsg,correlationData);
     }
 
 
-    // 5、监听MQ消息队列，查询付款状态, 返回销售订单的code码与付款状态
-    @RabbitListener(queues = RabbitStaticConstant.saleOrderReceiptQueue)
+    // 5、监听MQ消息队列，查询收款状态, 返回销售订单的code码与付款状态
+    @RabbitListener(queues = RabbitStaticConstant.SALE_RECEIPT_SUCCESS_QUEUE)
     public void listenerPayStatus(MqMsg mqMsg, Channel channel, Message message) throws IOException {
         try {
             if (mqMsg.getPayStatus()) {
@@ -127,7 +127,7 @@ public class SaleServiceImpl extends ServiceImpl<SaleMapper, Sale> implements IS
         Sale saleOutput = new Sale();
         BeanUtils.copyProperties(sale,saleOutput);
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
-        String code = "YLS-" + format.format(new Date()) + "-" + new Random().nextInt(100);
+        String code = "YLS-SALE-" + format.format(new Date()) + "-" + new Random().nextInt(100);
         saleOutput.setId("");
         saleOutput.setType(2);
         saleOutput.setStatus(2);
@@ -257,7 +257,7 @@ public class SaleServiceImpl extends ServiceImpl<SaleMapper, Sale> implements IS
         mqMsg.setAllTax(sale.getAllTax());
         mqMsg.setAllPrice(sale.getAllPrice());
         mqMsg.setTotalPrice(sale.getTotalPrice());
-        rabbitTemplate.convertAndSend(RabbitStaticConstant.innosen_topic, "sale.refund", mqMsg, correlationData);
+        rabbitTemplate.convertAndSend(RabbitStaticConstant.SALE_TOPIC_EXCHANGE, "sale.refund", mqMsg, correlationData);
     }
 
     @Override

@@ -35,6 +35,6 @@ public class RabbitTest {
         mqMsg.setAllTax(new BigDecimal(26));
         mqMsg.setAllPrice(new BigDecimal(74));
         mqMsg.setTotalPrice(new BigDecimal(100));*/
-        rabbitTemplate.convertAndSend(RabbitStaticConstant.innosen_topic,"sale.pay",mqMsg,correlationData);
+        rabbitTemplate.convertAndSend(RabbitStaticConstant.SALE_TOPIC_EXCHANGE,"sale.pay",mqMsg,correlationData);
     }
 }

@@ -60,7 +60,7 @@ public class Purchase implements Serializable {
     @ApiModelProperty("备注")
     private String remark;
 
-    @ApiModelProperty("单据状态，0-未审核，1-已审核，2-待付款，3待收货，4-已完成，5已取消，默认0")
+    @ApiModelProperty("单据状态，0-未审核，1-已审核，2-待付款，3-已付款，4-待收货，5-已收货，6-待收款，7-已收款，8-已取消，默认0")
     private Integer status;
 
     @ApiModelProperty("创建时间")

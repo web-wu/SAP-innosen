@@ -2,10 +2,13 @@ package com.tabwu.SAP.purchase.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.rabbitmq.client.Channel;
 import com.tabwu.SAP.common.constant.RabbitStaticConstant;
 import com.tabwu.SAP.common.entity.MqMsg;
 import com.tabwu.SAP.common.entity.R;
+import com.tabwu.SAP.common.exception.CostomException;
 import com.tabwu.SAP.purchase.entity.*;
 import com.tabwu.SAP.purchase.entity.To.CostomerSupplierTo;
 import com.tabwu.SAP.purchase.entity.To.UserTo;
@@ -18,6 +21,8 @@ import com.tabwu.SAP.purchase.mapper.PurchaseMapper;
 import com.tabwu.SAP.purchase.service.IPurchaseItemService;
 import com.tabwu.SAP.purchase.service.IPurchaseService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
@@ -26,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -63,30 +69,37 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseMapper, Purchase> i
             for (PurchaseItem purchaseItem : purchaseItems) {
                 purchaseItem.setId("");
                 purchaseItem.setPcode(purchase.getCode());
-
-                purchaseItemService.save(purchaseItem);
-
-                // 如果单据类型是收货单时，应该给该物料做相应的入库操作  TODO 远程添加库存时需要分布式事务保证数据一致性
-                if (purchaseVo.getType() == 3) {
-                    operatePurchaseInputWare(purchase, purchaseItem);
-                }
-
-                // 如果单据类型是退货单时，应该给该物料做相应的回退库存操作
-                if (purchaseVo.getType() == 4) {
+            }
+            purchaseItemService.saveBatch(purchaseItems);
+            // 如果单据类型是退货单时，发送消息给MQ，通知财务服务生成退货收款单据
+            if (purchaseVo.getType() == 4) {
+                sendMsgNotifyGenerateReturnRefund(purchase);
+                for (PurchaseItem purchaseItem : purchaseItems) {
+                    //应该给该物料做相应的回退库存操作
                     operatePurchaseReture(purchase, purchaseItem);
                 }
             }
 
             // 如果单据是采购订单时--2，需要发送消息给MQ，通知财务服务生成付款订单完成付款
             if (purchaseVo.getType() == 2) {
-                sendMsgnotifyGeneratePayBills(purchase);
+                sendMsgNotifyGeneratePayBills(purchase);
             }
             return true;
         }
         return false;
     }
 
-    private void sendMsgnotifyGeneratePayBills(Purchase purchase) {
+    @RabbitListener(queues = RabbitStaticConstant.SALE_RECEIPT_SUCCESS_QUEUE)
+    public void listenerReturnBillsReceiptStatus(MqMsg mqMsg,Channel channel,Message message) throws IOException {
+        if (mqMsg.getPayStatus()) {
+            // 当监听到退货订单的收款情况为已收款时，改变该订单的状态为已收款--7
+            Purchase purchase = baseMapper.selectById(mqMsg.getItemId());
+            baseMapper.update(null,new UpdateWrapper<Purchase>().eq("id",mqMsg.getItemId()).set("status",7));
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+        }
+    }
+
+    private void sendMsgNotifyGenerateReturnRefund(Purchase purchase) {
         CorrelationData correlationData = new CorrelationData();
         correlationData.setId(purchase.getCode());
         MqMsg mqMsg = new MqMsg();
@@ -96,8 +109,59 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseMapper, Purchase> i
         mqMsg.setAllTax(purchase.getTaxPrice());
         mqMsg.setAllPrice(purchase.getAllPrice());
         mqMsg.setTotalPrice(purchase.getTotalPrice());
-        rabbitTemplate.convertAndSend(RabbitStaticConstant.innosen_topic,"purchase.pay",mqMsg,correlationData);
+        rabbitTemplate.convertAndSend(RabbitStaticConstant.PURCHASE_TOPIC_EXCHANGE,"purchase.receipt",mqMsg,correlationData);
     }
+
+    private void sendMsgNotifyGeneratePayBills(Purchase purchase) {
+        CorrelationData correlationData = new CorrelationData();
+        correlationData.setId(purchase.getCode());
+        MqMsg mqMsg = new MqMsg();
+        mqMsg.setItemId(purchase.getId());
+        mqMsg.setCode(purchase.getCode());
+        mqMsg.setTax(purchase.getTax());
+        mqMsg.setAllTax(purchase.getTaxPrice());
+        mqMsg.setAllPrice(purchase.getAllPrice());
+        mqMsg.setTotalPrice(purchase.getTotalPrice());
+        rabbitTemplate.convertAndSend(RabbitStaticConstant.PURCHASE_TOPIC_EXCHANGE,"purchase.pay",mqMsg,correlationData);
+    }
+
+    // 监听采购订单付款状态，付款成功后自动生成采购收货单据
+    @RabbitListener(queues = RabbitStaticConstant.PURCHASE_PAY_SUCCESS_QUEUE)
+    private void listenerPayStatusAutoGenerateMaterialInputBills(MqMsg mqMsg, Message message, Channel channel) throws IOException {
+        Purchase purchase = baseMapper.selectById(mqMsg.getItemId());
+        if (mqMsg.getPayStatus()) {
+            // 将采购订单状态改为已付款
+            baseMapper.update(null,new UpdateWrapper<Purchase>().eq("id",purchase.getId()).set("status",3));
+            // 自动生成采购收货单据
+            autoGeneratePurchaseInputBills(purchase);
+        } else {
+            // 付款失败，自动取消采购订单
+            baseMapper.update(null,new UpdateWrapper<Purchase>().eq("id",purchase.getId()).set("status",8));
+        }
+        channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+    }
+
+    private void autoGeneratePurchaseInputBills(Purchase purchase) {
+        List<PurchaseItem> purchaseItems = purchaseItemService.list(new QueryWrapper<PurchaseItem>().eq("pcode", purchase.getCode()));
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+        String code = "YLS-PURCHASE-" + format.format(new Date()) + "-" + new Random().nextInt(100);
+        Purchase purchaseInput = new Purchase();
+        purchaseInput.setId("");
+        purchaseInput.setCode(code);
+        purchaseInput.setType(3);
+        purchaseInput.setStatus(4);
+        purchaseInput.setRelationItem(purchase.getId());
+        if (baseMapper.insert(purchase) > 0) {
+            for (PurchaseItem purchaseItem : purchaseItems) {
+                purchaseItem.setId("");
+                purchaseItem.setPcode(purchaseInput.getCode());
+            }
+            purchaseItemService.saveBatch(purchaseItems);
+        } else {
+            throw new CostomException(20004,"自动创建采购收货单据发送异常");
+        }
+    }
+
 
     private void operatePurchaseReture(Purchase purchase, PurchaseItem purchaseItem) {
         MaterialWare materialWare = new MaterialWare();
@@ -239,6 +303,22 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseMapper, Purchase> i
         CompletableFuture.allOf(purchaseFuture,purchaseItemsFuture,customerSupplierFuture,userFuture).get();
 
         return hashMap;
+    }
+
+    @Override
+    public boolean changePurchaseStatusById(String id,Integer status) {
+        Purchase purchase = baseMapper.selectById(id);
+        List<PurchaseItem> purchaseItems = purchaseItemService.list(new QueryWrapper<PurchaseItem>().eq("pcode", purchase.getCode()));
+        // 如果单据类型是收货单时，应该给该物料做相应的入库操作
+        if (purchase.getType() == 3) {
+            baseMapper.update(null,new UpdateWrapper<Purchase>().eq("id",id).set("status",status));
+            for (PurchaseItem purchaseItem : purchaseItems) {
+                operatePurchaseInputWare(purchase, purchaseItem);
+            }
+            return true;
+        }
+
+        return false;
     }
 
     private void handlerQueryPurchaser(HashMap<String, Object> hashMap, Purchase purchase) {
