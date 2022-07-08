@@ -18,6 +18,8 @@ import com.tabwu.SAP.sale.mapper.SaleMapper;
 import com.tabwu.SAP.sale.service.ISaleItemService;
 import com.tabwu.SAP.sale.service.ISaleService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
@@ -45,35 +47,44 @@ public class SaleServiceImpl extends ServiceImpl<SaleMapper, Sale> implements IS
     private MaterialStockFeign materialStockFeign;
     @Autowired
     private RabbitTemplate rabbitTemplate;
+    @Autowired
+    private RedissonClient redisson;
 
     @Override
     @Transactional
-    // TODO 需要分布式事务最终保证一致性
     public boolean addSale(SaleVo saleVo) {
+        //加redission分布式锁防止物品超卖
+        RLock lock = redisson.getLock("add-sale-bills");
+        lock.lock();
+        try {
+            List<SaleItem> saleItems = saleVo.getSaleItems();
 
-        List<SaleItem> saleItems = saleVo.getSaleItems();
-
-        if (saleVo.getType() == 1) {
-            // 1、根据物料mcode和数量查询判断库存是否足够
-            boolean hasStock = checkStockByMcode(saleItems);
-            if (!hasStock) {
-                throw new CostomException(20004,"改订单中的物料存在库存不足的情况，不能创建订单，请检查物料库存情况！！！");
+            if (saleVo.getType() == 1) {
+                // 1、根据物料mcode和数量查询判断库存是否足够
+                boolean hasStock = checkStockByMcode(saleItems);
+                if (!hasStock) {
+                    throw new CostomException(20004,"改订单中的物料存在库存不足的情况，不能创建订单，请检查物料库存情况！！！");
+                }
             }
+
+            // 2、根据saleVo生成销售订单，幂等性添加订单，此处幂等性根据数据库字段code唯一索引检验
+            Sale sale = new Sale();
+            createSaleBills(saleVo, sale, saleItems);
+
+            if (saleVo.getType() == 1) {
+                // 3、销售订单添加成功后远程扣减物料库存
+                reduceWareStockRemote(saleItems);
+
+                // 4、发送消息给MQ，财务服务根据销售订单自动生成收款订单
+                sendMsgNotifyGenerateReceiptBillsBySaleId(sale);
+            }
+
+            return true;
+        } catch (CostomException e) {
+            throw e;
+        } finally {
+            lock.unlock();
         }
-
-        // 2、根据saleVo生成销售订单，幂等性添加订单，此处幂等性根据数据库字段code唯一索引检验
-        Sale sale = new Sale();
-        createSaleBills(saleVo, sale, saleItems);
-
-        if (saleVo.getType() == 1) {
-            // 3、销售订单添加成功后远程扣减物料库存
-            reduceWareStockRemote(saleItems);
-
-            // 4、发送消息给MQ，财务服务根据销售订单自动生成收款订单
-            sendMsgNotifyGenerateReceiptBillsBySaleId(sale);
-        }
-
-        return true;
     }
 
     private void sendMsgNotifyGenerateReceiptBillsBySaleId(Sale sale) {

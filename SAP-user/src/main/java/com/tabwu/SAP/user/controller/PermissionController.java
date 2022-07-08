@@ -14,6 +14,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -77,6 +78,7 @@ public class PermissionController {
 
     @PostMapping("/add")
     @ApiOperation(value = "添加菜单权限")
+    @CacheEvict(cacheNames = "permission")
     public R addUser(@ApiParam(name = "permission",value = "permission",required = true)
                      @RequestBody Permission permission) {
         permissionService.save(permission);
@@ -85,6 +87,7 @@ public class PermissionController {
 
     @DeleteMapping("/delete/{id}")
     @ApiOperation(value = "根据id删除菜单权限")
+    @CacheEvict(cacheNames = "permission",allEntries = true)
     public R deleteById(@ApiParam(name = "id",value = "id",required = true)
                         @PathVariable("id") String id) {
         permissionService.removeById(id);
@@ -93,6 +96,7 @@ public class PermissionController {
 
     @PutMapping("/update")
     @ApiOperation(value = "修改菜单权限")
+    @CacheEvict(cacheNames = "permission",allEntries = true)
     public R updateById(@ApiParam(name = "permission",value = "permission",required = true)
                             @RequestBody Permission permission) {
         permissionService.updateById(permission);
