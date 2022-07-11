@@ -9,6 +9,7 @@ import com.tabwu.SAP.user.service.IRolePermissionService;
 import com.tabwu.SAP.user.service.IUserRoleService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,6 +30,7 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
     private Executor executor;
 
     @Override
+    @Cacheable(cacheNames = "permission",key = "#uid")
     public Permission findPermissionByUserId(String uid) {
 
         List<Permission> permissionList = permissionService.list();

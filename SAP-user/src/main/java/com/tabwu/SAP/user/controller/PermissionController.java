@@ -78,7 +78,7 @@ public class PermissionController {
 
     @PostMapping("/add")
     @ApiOperation(value = "添加菜单权限")
-    @CacheEvict(cacheNames = "permission")
+    @CacheEvict(cacheNames = "permission",allEntries = true)
     public R addUser(@ApiParam(name = "permission",value = "permission",required = true)
                      @RequestBody Permission permission) {
         permissionService.save(permission);

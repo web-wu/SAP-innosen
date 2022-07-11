@@ -20,11 +20,11 @@ import java.util.concurrent.TimeUnit;
  */
 @Service
 public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permission> implements IPermissionService {
-    @Autowired
-    private RedisTemplate redisTemplate;
+/*    @Autowired
+    private RedisTemplate redisTemplate;*/
 
     @Override
-    @Cacheable(cacheNames = "permission")
+    @Cacheable(cacheNames = "permission",key = "#root.method.name")
     public Permission findTree() {
 
        /* Permission permission = (Permission) redisTemplate.opsForValue().get("permission");
@@ -47,6 +47,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         for (Permission permission : permissionList) {
             if ("0".equals(permission.getPid())) {
                 first = findChildren(permission,permissionList);
+                break;
             }
         }
         return first;
