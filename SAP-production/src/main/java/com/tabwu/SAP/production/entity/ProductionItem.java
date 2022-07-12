@@ -1,16 +1,21 @@
 package com.tabwu.SAP.production.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
 /**
  * @author tabwu
  * @since 2022-07-11
  */
+@Data
 @TableName("yls_production_item")
 @ApiModel(value = "ProductionItem对象", description = "")
 public class ProductionItem implements Serializable {
@@ -60,154 +65,18 @@ public class ProductionItem implements Serializable {
     private String localStorageId;
 
     @ApiModelProperty("单据创建时间")
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     @ApiModelProperty("单据修改时间")
+    @TableField(fill = FieldFill.UPDATE)
     private LocalDateTime updateTime;
 
     @ApiModelProperty("删除标记，0未删除，1删除，默认0")
+    @TableLogic
     private Integer isDelete;
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-    public String getPcode() {
-        return pcode;
-    }
-
-    public void setPcode(String pcode) {
-        this.pcode = pcode;
-    }
-    public Integer getMtype() {
-        return mtype;
-    }
-
-    public void setMtype(Integer mtype) {
-        this.mtype = mtype;
-    }
-    public String getMcode() {
-        return mcode;
-    }
-
-    public void setMcode(String mcode) {
-        this.mcode = mcode;
-    }
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-    public String getParam() {
-        return param;
-    }
-
-    public void setParam(String param) {
-        this.param = param;
-    }
-    public Integer getNumber() {
-        return number;
-    }
-
-    public void setNumber(Integer number) {
-        this.number = number;
-    }
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-    public BigDecimal getAllPrice() {
-        return allPrice;
-    }
-
-    public void setAllPrice(BigDecimal allPrice) {
-        this.allPrice = allPrice;
-    }
-    public Integer getNumbered() {
-        return numbered;
-    }
-
-    public void setNumbered(Integer numbered) {
-        this.numbered = numbered;
-    }
-    public Integer getNumbering() {
-        return numbering;
-    }
-
-    public void setNumbering(Integer numbering) {
-        this.numbering = numbering;
-    }
-    public String getLot() {
-        return lot;
-    }
-
-    public void setLot(String lot) {
-        this.lot = lot;
-    }
-    public String getWareId() {
-        return wareId;
-    }
-
-    public void setWareId(String wareId) {
-        this.wareId = wareId;
-    }
-    public String getLocalStorageId() {
-        return localStorageId;
-    }
-
-    public void setLocalStorageId(String localStorageId) {
-        this.localStorageId = localStorageId;
-    }
-    public LocalDateTime getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(LocalDateTime createTime) {
-        this.createTime = createTime;
-    }
-    public LocalDateTime getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(LocalDateTime updateTime) {
-        this.updateTime = updateTime;
-    }
-    public Integer getIsDelete() {
-        return isDelete;
-    }
-
-    public void setIsDelete(Integer isDelete) {
-        this.isDelete = isDelete;
-    }
-
-    @Override
-    public String toString() {
-        return "ProductionItem{" +
-            "id=" + id +
-            ", pcode=" + pcode +
-            ", mtype=" + mtype +
-            ", mcode=" + mcode +
-            ", name=" + name +
-            ", param=" + param +
-            ", number=" + number +
-            ", price=" + price +
-            ", allPrice=" + allPrice +
-            ", numbered=" + numbered +
-            ", numbering=" + numbering +
-            ", lot=" + lot +
-            ", wareId=" + wareId +
-            ", localStorageId=" + localStorageId +
-            ", createTime=" + createTime +
-            ", updateTime=" + updateTime +
-            ", isDelete=" + isDelete +
-        "}";
-    }
+    @TableField(exist = false)
+    @ApiModelProperty("物料标记，1-子物料，2-父物料")
+    private Integer SubType;
 }

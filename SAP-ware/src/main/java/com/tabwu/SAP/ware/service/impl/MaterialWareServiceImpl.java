@@ -28,7 +28,7 @@ public class MaterialWareServiceImpl extends ServiceImpl<MaterialWareMapper, Mat
         for (WareStockTo wareStockTo : wareStockTos) {
             // 物料类型m_type=3时，物料为成品，可售
             MaterialWare materialWare = baseMapper.selectOne(new QueryWrapper<MaterialWare>()
-                    .eq("m_type", 3)
+//                    .eq("m_type", 3)
                     .eq("mid", wareStockTo.getMcode())
                     .eq("lot", wareStockTo.getLot())
                     .eq("wid", wareStockTo.getWareId())

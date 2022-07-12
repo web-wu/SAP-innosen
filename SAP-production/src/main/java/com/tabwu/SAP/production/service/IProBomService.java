@@ -12,11 +12,6 @@ import java.util.List;
  */
 public interface IProBomService extends IService<ProBom> {
 
-    boolean addBom(BomVo bomVo);
+    BomVo findBomByCode(String code);
 
-    boolean updateBom(BomVo bomVo);
-
-    BomVo findOne(String id);
-
-    List<ProBom> findList();
 }

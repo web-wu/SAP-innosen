@@ -10,6 +10,7 @@ public class RabbitStaticConstant {
 
     public static final String SALE_TOPIC_EXCHANGE = "saleTopicExchange";
     public static final String PURCHASE_TOPIC_EXCHANGE = "purchaseTopicExchange";
+    public static final String PRODUCTION_TOPIC_EXCHANGE = "productionTopicExchange";
 
     public static final String PURCHASE_PAY_QUEUE = "purchasePayQueue";
     public static final String PURCHASE_PAY_SUCCESS_QUEUE = "purchasePaySuccessQueue";
@@ -18,5 +19,6 @@ public class RabbitStaticConstant {
     public static final String SALE_RECEIPT_SUCCESS_QUEUE = "saleReceiptSuccessQueue";
     public static final String SALE_REFUND_QUEUE = "saleRefundQueue";
 
-
+    public static final String PRODUCTION_PAY_QUEUE = "productionPayQueue";
+    public static final String PRODUCTION_PAY_SUCCESS_QUEUE = "productionPaySuccessQueue";
 }
