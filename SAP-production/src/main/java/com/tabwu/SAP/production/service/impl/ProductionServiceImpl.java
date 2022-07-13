@@ -154,6 +154,9 @@ public class ProductionServiceImpl extends ServiceImpl<ProductionMapper, Product
     }
 
     private boolean reduceWareStockByCondition(List<WareStockTo> wareStockToList) {
+        for (WareStockTo wareStockTo : wareStockToList) {
+            wareStockTo.setNumber(wareStockTo.getNumber() * -1);
+        }
         R r = materialStockFeign.reduceWareStockByCondition(wareStockToList);
         if (r.getCode() == 20000) {
             return true;
