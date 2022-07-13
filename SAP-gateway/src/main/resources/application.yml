@@ -1,0 +1,49 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+#      config:
+#        server-addr: localhost:8848
+#        prefix: PREFIX
+#        group: GROUP
+#        namespace: NAMESPACE
+    gateway:
+      routes:
+        - id: ware-service-route
+          uri: lb://ware-service
+          predicates:
+            - Path=/ware/**
+#          filters:
+            # 表示过滤1个路径，2表示两个路径，以此类推
+#            - StripePrefix=1
+
+        - id: user-service-route
+          uri: lb://user-service
+          predicates:
+            - Path=/user/**
+
+        - id: sale-service-route
+          uri: lb://sale-service
+          predicates:
+            - Path=/sale/**
+
+        - id: purchase-service-route
+          uri: lb://purchase-service
+          predicates:
+            - Path=/purchase/**
+
+        - id: production-service-route
+          uri: lb://production-service
+          predicates:
+            - Path=/production/**
+
+        - id: base-service-route
+          uri: lb://base-service
+          predicates:
+            - Path=/base/**
