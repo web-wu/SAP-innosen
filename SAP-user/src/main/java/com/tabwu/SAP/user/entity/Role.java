@@ -1,25 +1,27 @@
 package com.tabwu.SAP.user.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
- * <p>
- * 
- * </p>
- *
  * @author tabwu
  * @since 2022-06-23
  */
+@Data
 @TableName("yls_role")
 @ApiModel(value = "Role对象", description = "")
-public class Role implements Serializable {
+public class Role implements GrantedAuthority,Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -47,66 +49,11 @@ public class Role implements Serializable {
     @TableField(fill = FieldFill.UPDATE)
     private LocalDateTime updateTime;
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-    public String getRoleName() {
-        return roleName;
-    }
-
-    public void setRoleName(String roleName) {
-        this.roleName = roleName;
-    }
-    public String getRoleKey() {
-        return roleKey;
-    }
-
-    public void setRoleKey(String roleKey) {
-        this.roleKey = roleKey;
-    }
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-    public Integer getIsDelete() {
-        return isDelete;
-    }
-
-    public void setIsDelete(Integer isDelete) {
-        this.isDelete = isDelete;
-    }
-    public LocalDateTime getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(LocalDateTime createTime) {
-        this.createTime = createTime;
-    }
-    public LocalDateTime getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(LocalDateTime updateTime) {
-        this.updateTime = updateTime;
-    }
 
     @Override
-    public String toString() {
-        return "Role{" +
-            "id=" + id +
-            ", roleName=" + roleName +
-            ", roleKey=" + roleKey +
-            ", description=" + description +
-            ", isDelete=" + isDelete +
-            ", createTime=" + createTime +
-            ", updateTime=" + updateTime +
-        "}";
+    @JsonIgnore
+    @JSONField(serialize = false) //fastjson字符串转换时忽略 属性字段
+    public String getAuthority() {
+        return roleKey;
     }
 }

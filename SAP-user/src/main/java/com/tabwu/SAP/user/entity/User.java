@@ -1,16 +1,21 @@
 package com.tabwu.SAP.user.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * @author tabwu
@@ -19,7 +24,7 @@ import lombok.Data;
 @Data
 @TableName("yls_user")
 @ApiModel(value = "User对象", description = "")
-public class User implements Serializable {
+public class User implements UserDetails,Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -76,4 +81,39 @@ public class User implements Serializable {
 
     @TableField(exist = false)
     private List<Role> roles;
+
+    @Override
+    @JsonIgnore
+    @JSONField(serialize = false) //fastjson字符串转换时忽略 属性字段
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles;
+    }
+
+    @Override
+    @JsonIgnore
+    @JSONField(serialize = false) //fastjson字符串转换时忽略 属性字段
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    @JsonIgnore
+    @JSONField(serialize = false) //fastjson字符串转换时忽略 属性字段
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    @JsonIgnore
+    @JSONField(serialize = false) //fastjson字符串转换时忽略 属性字段
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    @JsonIgnore
+    @JSONField(serialize = false) //fastjson字符串转换时忽略 属性字段
+    public boolean isEnabled() {
+        return status == 1;
+    }
 }

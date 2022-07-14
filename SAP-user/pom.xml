@@ -49,10 +49,19 @@
         </dependency>
         <!--redis 缓存配置-->
 
+        <!--spring cache-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
+        <!--spring cache-->
+
+        <!--spring secutity-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <!--spring secutity-->
     </dependencies>
 
 

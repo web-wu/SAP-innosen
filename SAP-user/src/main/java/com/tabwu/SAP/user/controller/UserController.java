@@ -18,6 +18,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,11 +37,14 @@ public class UserController {
     private IRoleService roleService;
     @Autowired
     private IUserRoleService userRoleService;
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @PostMapping("/add")
     @ApiOperation(value = "添加用户")
     public R addUser(@ApiParam(name = "user",value = "user",required = true)
                      @RequestBody User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userService.save(user);
         return R.ok();
     }
@@ -58,6 +62,7 @@ public class UserController {
     @ApiOperation(value = "修改用户")
     public R updateById(@ApiParam(name = "user",value = "user",required = true)
                             @RequestBody User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userService.updateById(user);
         return R.ok();
     }

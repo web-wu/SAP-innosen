@@ -2,6 +2,7 @@ package com.tabwu.SAP.user.service;
 
 import com.tabwu.SAP.user.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 /**
  * <p>
@@ -11,7 +12,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @author tabwu
  * @since 2022-06-23
  */
-public interface IUserService extends IService<User> {
+public interface IUserService extends UserDetailsService,IService<User> {
 
     User findUserById(String id);
 }

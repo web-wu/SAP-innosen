@@ -1,5 +1,7 @@
 package com.tabwu.SAP.gateway.filter;
 
+import com.tabwu.SAP.common.utils.JwtUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -21,6 +23,9 @@ import reactor.core.publisher.Mono;
 @Component
 public class AuthorizeFilter implements GlobalFilter, Ordered {
 
+    @Value("${tabwu.sap-innosen.public-key}")
+    private String publicKey;
+
     private static final String AUTHORIZE_TOKEN = "Authorization";
 
     @Override
@@ -29,8 +34,7 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
         ServerHttpResponse response = exchange.getResponse();
 
         String path = request.getURI().getPath();
-        if (path.equals("/user/login") || path.equals("/user/register") || path.equals("/user/email")
-            || path.equals("/user/wx/login") || path.equals("/user/wx/callback") || path.equals("/login")) {
+        if (path.equals("/login")) {
             chain.filter(exchange);
         }
 
@@ -57,9 +61,9 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
         }
 
         // 验证token有效性
-       /* if (JwtUtils.checkToken(token)) {
+        if (JwtUtils.checkToken(token,publicKey)) {
             return chain.filter(exchange);
-        }*/
+        }
 
         response.setStatusCode(HttpStatus.METHOD_NOT_ALLOWED);
         return response.setComplete();

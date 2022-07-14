@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.nio.file.AccessDeniedException;
+
 /**
  * @ProjectName: SAP-innosen
  * @Author: tabwu
@@ -17,6 +19,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public R exceptionHandler(Exception e) {
+        if (e instanceof AccessDeniedException) {
+            log.error("用户角色权限不足，请切换用户，{}",e.getMessage());
+            return R.error().message("用户角色权限不足，请切换用户");
+        }
         log.error("服务发生未知异常，{}",e.getMessage());
         return R.error().message("服务发生未知异常");
     }
@@ -27,4 +33,13 @@ public class GlobalExceptionHandler {
         log.error(e.getMessage());
         return R.error().message(e.getMessage());
     }
+
+    /*@ExceptionHandler(RuntimeException.class)
+    public R exceptionHandler(RuntimeException e) {
+        if (e instanceof AccessDeniedException) {
+            log.error("用户角色权限不足，请切换用户，{}",e.getMessage());
+            return R.error().message("用户角色权限不足，请切换用户");
+        }
+        return R.error();
+    }*/
 }

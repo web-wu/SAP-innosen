@@ -2,8 +2,10 @@ package com.tabwu.SAP.user.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.tabwu.SAP.user.entity.Permission;
+import com.tabwu.SAP.user.entity.Role;
 import com.tabwu.SAP.user.entity.RolePermission;
 import com.tabwu.SAP.user.entity.UserRole;
+import com.tabwu.SAP.user.mapper.RoleMapper;
 import com.tabwu.SAP.user.mapper.UserRoleMapper;
 import com.tabwu.SAP.user.service.IRolePermissionService;
 import com.tabwu.SAP.user.service.IUserRoleService;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 /**
  * @author tabwu
@@ -27,7 +30,7 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
     @Autowired
     private IRolePermissionService rolePermissionService;
     @Autowired
-    private Executor executor;
+    private RoleMapper roleMapper;
 
     @Override
     @Cacheable(cacheNames = "permission",key = "#uid")
@@ -44,5 +47,14 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
             }
         }
         return permissionService.findChildrens(permissionList);
+    }
+
+    @Override
+    public List<Role> findRolesByUserId(String id) {
+        List<UserRole> userRoles = baseMapper.selectList(new QueryWrapper<UserRole>().eq("uid", id));
+        List<String> rids = userRoles.stream().map(item -> {
+            return item.getRid();
+        }).collect(Collectors.toList());
+        return roleMapper.selectBatchIds(rids);
     }
 }
