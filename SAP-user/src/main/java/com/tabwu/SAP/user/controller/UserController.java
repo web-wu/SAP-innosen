@@ -3,17 +3,16 @@ package com.tabwu.SAP.user.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.tabwu.SAP.common.entity.LoginUser;
 import com.tabwu.SAP.common.entity.R;
+import com.tabwu.SAP.common.utils.JwtUtils;
 import com.tabwu.SAP.user.entity.Permission;
-import com.tabwu.SAP.user.entity.Role;
 import com.tabwu.SAP.user.entity.To.UserTo;
 import com.tabwu.SAP.user.entity.User;
 import com.tabwu.SAP.user.entity.UserRole;
 import com.tabwu.SAP.user.service.IRoleService;
 import com.tabwu.SAP.user.service.IUserRoleService;
 import com.tabwu.SAP.user.service.IUserService;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.BeanUtils;
@@ -21,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -89,7 +89,7 @@ public class UserController {
 
     @GetMapping("/list")
     @ApiOperation(value = "查询所有用户")
-    public R list() {
+    public R list(HttpServletRequest request) {
         List<User> list = userService.list();
         return R.ok().data("list",list);
     }

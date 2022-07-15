@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.tabwu.SAP.common.config.RSAKeyProperty;
 import com.tabwu.SAP.common.utils.JwtUtils;
 import com.tabwu.SAP.user.entity.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,7 +41,8 @@ public class JwtVerifyFilter extends BasicAuthenticationFilter {
                 tokenVerifyError(response);
             } else {
                 token = token.replace("Bearer ","");
-                User sysUser = JwtUtils.getMemberIdByJwtToken(token, User.class, pro.getPublicKey());
+//                User sysUser = JwtUtils.getMemberIdByJwtToken(token, User.class, pro.getPublicKey());
+                User sysUser = JwtUtils.getMemberIdByJwtToken(token, User.class);
                 if (sysUser != null) {
                     UsernamePasswordAuthenticationToken authResult = new UsernamePasswordAuthenticationToken(sysUser, sysUser.getRoles(), sysUser.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(authResult);

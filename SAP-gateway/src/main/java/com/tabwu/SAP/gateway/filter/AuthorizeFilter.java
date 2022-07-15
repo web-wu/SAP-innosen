@@ -1,7 +1,7 @@
 package com.tabwu.SAP.gateway.filter;
 
+import com.tabwu.SAP.common.entity.LoginUser;
 import com.tabwu.SAP.common.utils.JwtUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -21,10 +21,12 @@ import reactor.core.publisher.Mono;
  * @DESCRIPTION:   所有的请求都需要经过此 过滤器验证登录token
  */
 @Component
+//@EnableConfigurationProperties(RSAKeyProperty.class)
 public class AuthorizeFilter implements GlobalFilter, Ordered {
 
-    @Value("${tabwu.sap-innosen.public-key}")
-    private String publicKey;
+
+    /*@Autowired
+    private RSAKeyProperty pro;*/
 
     private static final String AUTHORIZE_TOKEN = "Authorization";
 
@@ -34,7 +36,7 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
         ServerHttpResponse response = exchange.getResponse();
 
         String path = request.getURI().getPath();
-        if (path.equals("/login")) {
+        if (path.equals("/login") || path.equals("/doc.html")) {
             chain.filter(exchange);
         }
 
@@ -61,7 +63,11 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
         }
 
         // 验证token有效性
-        if (JwtUtils.checkToken(token,publicKey)) {
+//        if (JwtUtils.checkToken(token,pro.getPublicKey())) {
+//            return chain.filter(exchange);
+//        }
+        token = token.replace("Bearer ","");
+        if (JwtUtils.checkToken(token)) {
             return chain.filter(exchange);
         }
 

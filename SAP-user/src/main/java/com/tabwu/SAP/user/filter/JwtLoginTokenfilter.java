@@ -2,8 +2,10 @@ package com.tabwu.SAP.user.filter;
 
 import com.alibaba.fastjson.JSON;
 import com.tabwu.SAP.common.config.RSAKeyProperty;
+import com.tabwu.SAP.common.entity.LoginUser;
 import com.tabwu.SAP.common.utils.JwtUtils;
 import com.tabwu.SAP.user.entity.User;
+import org.springframework.beans.BeanUtils;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,9 +28,9 @@ import java.util.HashMap;
  */
 public class JwtLoginTokenfilter extends UsernamePasswordAuthenticationFilter {
 
-    private final AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
 
-    private final RSAKeyProperty pro;
+    private RSAKeyProperty pro;
 
     public JwtLoginTokenfilter(AuthenticationManager authenticationManager, RSAKeyProperty pro) {
         this.authenticationManager = authenticationManager;
@@ -63,8 +65,13 @@ public class JwtLoginTokenfilter extends UsernamePasswordAuthenticationFilter {
     @Override
     public void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         User principal = (User) authResult.getPrincipal();
-        principal.setPassword("");
-        String token = JwtUtils.getJwtToken(principal,privateKey);
+        LoginUser loginUser = new LoginUser();
+        BeanUtils.copyProperties(principal,loginUser);
+        loginUser.setRid(principal.getRoles().get(0).getId());
+        loginUser.setRoleKey(principal.getRoles().get(0).getRoleKey());
+        loginUser.setRoleName(principal.getRoles().get(0).getRoleName());
+//        String token = JwtUtils.getJwtToken(principal,pro.getPrivateKey());
+        String token = JwtUtils.getJwtToken(loginUser);
         response.setHeader("Authorization","Bearer " + token);
         try {
             response.setContentType("application/json;charset=utf-8");

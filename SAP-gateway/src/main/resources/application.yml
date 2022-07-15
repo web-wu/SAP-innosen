@@ -47,14 +47,3 @@ spring:
           uri: lb://base-service
           predicates:
             - Path=/base/**
-
-
-
-tabwu:
-  sap-innosen:
-    public-key: -----BEGIN PUBLIC KEY-----
-      MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCptA3Ehh6KXVFWY9Y6KYPjm+C3
-      cFqqyQ3Wqb7u5iiYofl98EoKGn10uDUnA0HHfw9onXWdiZzK40yoTkI63gnsJW2o
-      3qNIsY9HJgjI6vIl2iPWeEJUtjLobibivoeqa9GoVddnr+K8PHejuldrRzUgbnhu
-      Dzht8t7DedE8pvQg8QIDAQAB
-      -----END PUBLIC KEY-----

@@ -1,0 +1,4 @@
+rsa:
+  key:
+    publicKeyPath: C:\JAVA_E\Project_study\SAP-innosen\SAP-common\src\main\resources\rsa-key\rsa-public-key
+    privateKeyPath: C:\JAVA_E\Project_study\SAP-innosen\SAP-common\src\main\resources\rsa-key\rsa-private-key
