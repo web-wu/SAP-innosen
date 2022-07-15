@@ -47,3 +47,8 @@ spring:
           uri: lb://base-service
           predicates:
             - Path=/base/**
+
+        - id: statistic-service-route
+          uri: lb://statistic-service
+          predicates:
+            - Path=/statistic/**

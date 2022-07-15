@@ -17,6 +17,7 @@
         <module>SAP-sale</module>
         <module>SAP-production</module>
         <module>SAP-gateway</module>
+        <module>SAP-statistic</module>
     </modules>
 
     <properties>
