@@ -14,7 +14,7 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @SpringBootApplication
 @ComponentScan("com.tabwu.SAP")
-@MapperScan("com.tabwu.SAP.mapper")
+@MapperScan("com.tabwu.SAP.statistic.mapper")
 @EnableDiscoveryClient
 public class StatisticApplication {
     public static void main(String[] args) {
