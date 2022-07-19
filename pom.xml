@@ -18,6 +18,7 @@
         <module>SAP-production</module>
         <module>SAP-gateway</module>
         <module>SAP-statistic</module>
+        <module>SAP-seckills</module>
     </modules>
 
     <properties>
