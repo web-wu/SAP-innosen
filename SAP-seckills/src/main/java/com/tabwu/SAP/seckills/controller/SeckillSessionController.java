@@ -3,9 +3,7 @@ package com.tabwu.SAP.seckills.controller;
 
 import com.tabwu.SAP.common.entity.R;
 import com.tabwu.SAP.seckills.entity.SeckillProRelation;
-import com.tabwu.SAP.seckills.entity.SeckillPromotion;
 import com.tabwu.SAP.seckills.entity.SeckillSession;
-import com.tabwu.SAP.seckills.entity.vo.SeckillPromotionQueryVo;
 import com.tabwu.SAP.seckills.entity.vo.SeckillSessionVo;
 import com.tabwu.SAP.seckills.service.ISeckillSessionService;
 import io.swagger.annotations.ApiOperation;
@@ -76,7 +74,7 @@ public class SeckillSessionController {
     }
 
     @PostMapping("/pageList")
-    @ApiOperation(value = "查询所有秒杀场次")
+    @ApiOperation(value = "分页查询所有秒杀场次")
     public R pageList(@ApiParam(name = "seckillSessionVo",value = "seckillSessionVo",required = true)
                       @RequestBody SeckillSessionVo seckillSessionVo) {
         HashMap<String,Object> page = seckillSessionService.pageList(seckillSessionVo);

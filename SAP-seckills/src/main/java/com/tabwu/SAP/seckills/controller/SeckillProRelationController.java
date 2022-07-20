@@ -10,6 +10,8 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * @author tabwu
  * @since 2022-07-19
@@ -25,6 +27,14 @@ public class SeckillProRelationController {
     public R add(@ApiParam(name = "seckillProRelation",value = "seckillProRelation",required = true)
                  @RequestBody SeckillProRelation seckillProRelation) {
         seckillProRelationService.save(seckillProRelation);
+        return R.ok();
+    }
+
+    @PostMapping("/addBatch")
+    @ApiOperation(value = "批量添加秒杀场次相关的商品关系")
+    public R addBatch(@ApiParam(name = "seckillProRelations",value = "seckillProRelations",required = true)
+                 @RequestBody List<SeckillProRelation> seckillProRelations) {
+        seckillProRelationService.saveBatch(seckillProRelations);
         return R.ok();
     }
 

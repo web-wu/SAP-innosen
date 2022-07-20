@@ -21,4 +21,6 @@ public interface ISeckillSessionService extends IService<SeckillSession> {
     HashMap<String, Object> pageList(SeckillSessionVo seckillSessionVo);
 
     List<SeckillProRelation> findSessionProsById(String id);
+
+    void uploadSessionsAndRelationProduct();
 }
