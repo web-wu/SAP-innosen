@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
 /**
  * <p>
@@ -16,6 +17,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @author tabwu
  * @since 2022-07-19
  */
+@Data
 @TableName("yls_seckill_pro_relation")
 @ApiModel(value = "SeckillProRelation对象", description = "秒杀活动商品关联")
 public class SeckillProRelation implements Serializable {
@@ -39,82 +41,13 @@ public class SeckillProRelation implements Serializable {
     private BigDecimal seckillPrice;
 
     @ApiModelProperty("秒杀总量")
-    private BigDecimal seckillCount;
+    private Integer seckillCount;
 
     @ApiModelProperty("每人限购数量")
-    private BigDecimal seckillLimit;
+    private Integer seckillLimit;
 
     @ApiModelProperty("排序")
     private Integer seckillSort;
 
-    public Long getId() {
-        return id;
-    }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-    public Long getPromotionId() {
-        return promotionId;
-    }
-
-    public void setPromotionId(Long promotionId) {
-        this.promotionId = promotionId;
-    }
-    public Long getPromotionSessionId() {
-        return promotionSessionId;
-    }
-
-    public void setPromotionSessionId(Long promotionSessionId) {
-        this.promotionSessionId = promotionSessionId;
-    }
-    public Long getPid() {
-        return pid;
-    }
-
-    public void setPid(Long pid) {
-        this.pid = pid;
-    }
-    public BigDecimal getSeckillPrice() {
-        return seckillPrice;
-    }
-
-    public void setSeckillPrice(BigDecimal seckillPrice) {
-        this.seckillPrice = seckillPrice;
-    }
-    public BigDecimal getSeckillCount() {
-        return seckillCount;
-    }
-
-    public void setSeckillCount(BigDecimal seckillCount) {
-        this.seckillCount = seckillCount;
-    }
-    public BigDecimal getSeckillLimit() {
-        return seckillLimit;
-    }
-
-    public void setSeckillLimit(BigDecimal seckillLimit) {
-        this.seckillLimit = seckillLimit;
-    }
-    public Integer getSeckillSort() {
-        return seckillSort;
-    }
-
-    public void setSeckillSort(Integer seckillSort) {
-        this.seckillSort = seckillSort;
-    }
-
-    @Override
-    public String toString() {
-        return "SeckillProRelation{" +
-            "id=" + id +
-            ", promotionId=" + promotionId +
-            ", promotionSessionId=" + promotionSessionId +
-            ", pid=" + pid +
-            ", seckillPrice=" + seckillPrice +
-            ", seckillCount=" + seckillCount +
-            ", seckillLimit=" + seckillLimit +
-            ", seckillSort=" + seckillSort +
-        "}";
-    }
 }

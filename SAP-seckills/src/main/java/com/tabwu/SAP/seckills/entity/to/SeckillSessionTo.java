@@ -2,6 +2,7 @@ package com.tabwu.SAP.seckills.entity.to;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.tabwu.SAP.seckills.entity.SeckillProRelation;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -34,4 +35,7 @@ public class SeckillSessionTo {
     @ApiModelProperty("关联商品id集合")
     private List<Long> pids;
 
+
+    @ApiModelProperty("场次商品关联关系集合")
+    private List<SeckillProRelation> seckillProRelations;
 }

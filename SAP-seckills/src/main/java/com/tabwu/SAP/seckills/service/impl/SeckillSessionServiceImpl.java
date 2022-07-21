@@ -1,19 +1,28 @@
 package com.tabwu.SAP.seckills.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.tabwu.SAP.common.entity.R;
 import com.tabwu.SAP.common.utils.PageUtil;
+import com.tabwu.SAP.seckills.entity.Material;
 import com.tabwu.SAP.seckills.entity.SeckillProRelation;
 import com.tabwu.SAP.seckills.entity.SeckillSession;
+import com.tabwu.SAP.seckills.entity.to.SeckillProductInfoTo;
 import com.tabwu.SAP.seckills.entity.to.SeckillSessionTo;
 import com.tabwu.SAP.seckills.entity.vo.SeckillSessionVo;
+import com.tabwu.SAP.seckills.feign.WareFeignService;
 import com.tabwu.SAP.seckills.mapper.SeckillSessionMapper;
 import com.tabwu.SAP.seckills.service.ISeckillProRelationService;
 import com.tabwu.SAP.seckills.service.ISeckillSessionService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.redisson.api.RSemaphore;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -22,10 +31,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -38,11 +45,17 @@ public class SeckillSessionServiceImpl extends ServiceImpl<SeckillSessionMapper,
     @Autowired
     private ISeckillProRelationService seckillProRelationService;
     @Autowired
-    private RedisTemplate<String,Object> redisTemplate;
+    private StringRedisTemplate redisTemplate;
+    @Autowired
+    private WareFeignService wareFeignService;
+    @Autowired
+    private RedissonClient redissonClient;
 
-    private final String SECKILL_SESSION_KEY = "seckill:session";
+    private final String SECKILL_SESSION_KEY = "seckill:session_";
 
     private final String SECKILL_SESSION_PRO_KEY = "seckill:session:pro";
+
+    private final String SECKILL_PRO_SEMAPHORE = "seckill:PRODUCT:SEMAPHORE_";
 
     @Override
     public HashMap<String, Object> pageList(SeckillSessionVo seckillSessionVo) {
@@ -77,11 +90,29 @@ public class SeckillSessionServiceImpl extends ServiceImpl<SeckillSessionMapper,
     // 3、上架秒杀场次关联的商品详情信息、随机码、活动时间
     private void uploadSessionRaletionProInfos(List<SeckillSessionTo> sessions) {
         for (SeckillSessionTo session : sessions) {
-            // TODO
-            redisTemplate.opsForHash().getOperations()
-            for (Long pid : session.getPids()) {
+            BoundHashOperations<String, String, String> operations = redisTemplate.boundHashOps(SECKILL_SESSION_PRO_KEY);
+            for (SeckillProRelation relation : session.getSeckillProRelations()) {
                 String token = UUID.randomUUID().toString().replace("-","");
-                String key = session.getId() + "_" + pid;
+                String keyName = session.getId() + "_" + relation.getPid();
+                if (!operations.hasKey(keyName)) {
+                    R r = wareFeignService.findOneById(relation.getPid().toString());
+                    Material material = JSON.parseObject(JSON.toJSONString(r.getData().get("material")), Material.class);
+                    SeckillProductInfoTo productInfoTo = new SeckillProductInfoTo();
+                    productInfoTo.setMaterial(material);
+                    productInfoTo.setSeckillCount(relation.getSeckillCount());
+                    productInfoTo.setSeckillPrice(relation.getSeckillPrice());
+                    productInfoTo.setSeckillLimit(relation.getSeckillLimit());
+                    productInfoTo.setToken(token);
+                    /*long startEnd = session.getEndTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+                    long now =System.currentTimeMillis();
+                    long ttl = startEnd - now;
+                    operations.put(keyName,JSON.toJSONString(productInfoTo),ttl,TimeUnit.MILLISECONDS);*/
+                    operations.put(keyName,JSON.toJSONString(productInfoTo));
+                    // 设置分布式商品信号量，以商品的数量为信号量，以此判断扣减库存和秒杀是否成功
+                    // 使用库存作为分布式Redisson信号量（限流）
+                    RSemaphore semaphore = redissonClient.getSemaphore(SECKILL_PRO_SEMAPHORE + token);
+                    semaphore.trySetPermits(relation.getSeckillCount());
+                }
             }
         }
     }
@@ -95,7 +126,10 @@ public class SeckillSessionServiceImpl extends ServiceImpl<SeckillSessionMapper,
                 String key = SECKILL_SESSION_KEY + "_" + session.getId()+ "_" + startTime + "_" + startEnd;
                 // 只有当前key不存在时才缓存信息
                 if (!redisTemplate.hasKey(key)) {
-                    redisTemplate.opsForList().leftPush(key,session.getPids());
+                    long now =System.currentTimeMillis();
+                    long ttl = startEnd - now;
+//                    redisTemplate.opsForList().leftPush(key,session.getPids().toString());
+                    redisTemplate.opsForValue().set(key,session.getPids().toString(),ttl, TimeUnit.MILLISECONDS);
                 }
             }
         }
@@ -106,13 +140,14 @@ public class SeckillSessionServiceImpl extends ServiceImpl<SeckillSessionMapper,
         List<SeckillSessionTo> seckillSessionTos = new ArrayList<>();
         List<SeckillSession> sessions = this.list(new QueryWrapper<SeckillSession>().between("start_time", startTime(), endTime()));
         for (SeckillSession session : sessions) {
-            List<SeckillProRelation> list = seckillProRelationService.list(new QueryWrapper<SeckillProRelation>().eq("promotion_session_id", session.getId()).select("pid"));
+            List<SeckillProRelation> list = seckillProRelationService.list(new QueryWrapper<SeckillProRelation>().eq("promotion_session_id", session.getId()));
             List<Long> pids = list.stream().map(item -> {
                 return item.getPid();
             }).collect(Collectors.toList());
             SeckillSessionTo seckillSessionTo = new SeckillSessionTo();
             BeanUtils.copyProperties(session,seckillSessionTo);
             seckillSessionTo.setPids(pids);
+            seckillSessionTo.setSeckillProRelations(list);
             seckillSessionTos.add(seckillSessionTo);
         }
         return seckillSessionTos;
