@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * @PROJECT_NAME: SAP-innosen
@@ -31,4 +32,10 @@ public class SeckillProductInfoTo {
 
     @ApiModelProperty("秒杀商品随机码")
     private String token;
+
+    @ApiModelProperty("开始时间")
+    private LocalDateTime startTime;
+
+    @ApiModelProperty("结束时间")
+    private LocalDateTime endTime;
 }
