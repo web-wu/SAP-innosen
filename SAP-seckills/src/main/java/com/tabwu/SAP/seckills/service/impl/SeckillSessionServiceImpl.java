@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.tabwu.SAP.common.constant.RabbitStaticConstant;
 import com.tabwu.SAP.common.entity.MqMsg;
 import com.tabwu.SAP.common.entity.R;
+import com.tabwu.SAP.common.entity.SeckillMsg;
 import com.tabwu.SAP.common.exception.CostomException;
 import com.tabwu.SAP.common.utils.PageUtil;
 import com.tabwu.SAP.seckills.entity.Material;
@@ -24,6 +25,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.redisson.api.RSemaphore;
 import org.redisson.api.RedissonClient;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.BoundHashOperations;
@@ -32,6 +34,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -57,6 +60,8 @@ public class SeckillSessionServiceImpl extends ServiceImpl<SeckillSessionMapper,
     private WareFeignService wareFeignService;
     @Autowired
     private RedissonClient redissonClient;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     private static final String SECKILL_SESSION_KEY = "seckill:session_";
 
@@ -132,23 +137,23 @@ public class SeckillSessionServiceImpl extends ServiceImpl<SeckillSessionMapper,
             throw new CostomException(20004,"该商品信号量不足，也就秒杀库存不足");
         }
         // 4、发送MQ消息快速创建订单
-        return sendMsgToMqAutoGenerateSeckillSaleOrder();
+        return sendMsgToMqAutoGenerateSeckillSaleOrder(seckillParamsVo.getPid(),seckillParamsVo.getNum(),productInfoTo.getSeckillPrice());
     }
 
-    // TODO 发送MQ消息快速创建订单
-    private String sendMsgToMqAutoGenerateSeckillSaleOrder() {
+    // 发送MQ消息快速创建订单
+    private String sendMsgToMqAutoGenerateSeckillSaleOrder(String pid, int num, BigDecimal price) {
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
         String code = "YLS-SALE-" + format.format(new Date()) + "-" + new Random().nextInt(100);
         CorrelationData correlationData = new CorrelationData();
         correlationData.setId(code);
-        MqMsg mqMsg = new MqMsg();
-        mqMsg.setCode(code);
-        mqMsg.setTax("13%");
-        mqMsg.setAllTax(sale.getAllTax());
-        mqMsg.setAllPrice(sale.getAllPrice());
-        mqMsg.setTotalPrice(sale.getTotalPrice());
-        rabbitTemplate.convertAndSend(RabbitStaticConstant.SALE_TOPIC_EXCHANGE,"sale.receipt",mqMsg,correlationData);
-
+        SeckillMsg seckillMsg = new SeckillMsg();
+        seckillMsg.setCode(code);
+        seckillMsg.setPid(pid);
+        seckillMsg.setNum(num);
+        seckillMsg.setRice(price);
+        seckillMsg.setTotalPrice(price.multiply(new BigDecimal(num)));
+        seckillMsg.setPayStatus(false);
+        rabbitTemplate.convertAndSend(RabbitStaticConstant.SECKILL_SUCCESS_QUEUE,"seckill.success",seckillMsg,correlationData);
         return code;
     }
 
@@ -212,6 +217,7 @@ public class SeckillSessionServiceImpl extends ServiceImpl<SeckillSessionMapper,
                     // 使用库存作为分布式Redisson信号量（限流）
                     RSemaphore semaphore = redissonClient.getSemaphore(SECKILL_PRO_SEMAPHORE + token);
                     semaphore.trySetPermits(relation.getSeckillCount());
+                    semaphore.expire(ttl,TimeUnit.MILLISECONDS);
                 }
             }
         }

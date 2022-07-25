@@ -3,7 +3,6 @@ package com.tabwu.SAP.seckills.entity.vo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.io.Serializable;
 

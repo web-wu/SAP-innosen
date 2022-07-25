@@ -30,13 +30,17 @@ public class SchedulingUploadProductToRedis {
     private static final String UPLOAD_LOCK = "seckill:upload:lock";
 
     @Async
-    @Scheduled(cron = "* * 3 * * ?")
+    @Scheduled(cron = "* 1/5 * * * ?")
     public void uploadProductToRedisOf3Days() {
         log.info("定时将活动场次与相关商品提前预上架到redis，上架3天内的活动，当前时间：{}",new Date());
         RLock lock = redissonClient.getLock(UPLOAD_LOCK);
+
         try {
-            lock.lock();
-            seckillSessionService.uploadSessionsAndRelationProduct();
+//            lock.lock();
+            // 分布式部署时只有拿到锁的节点执行，其他节点不执行，只执行一次
+            if (lock.tryLock()) {
+                seckillSessionService.uploadSessionsAndRelationProduct();
+            }
         } catch (Exception e) {
             throw new CostomException(20004,"上架近3日内的秒杀场次和关联商品时发生异常");
         } finally {

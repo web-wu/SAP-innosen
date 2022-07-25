@@ -44,10 +44,10 @@ public class SeckillController {
         return R.ok().data("product",product);
     }
 
-    @GetMapping("/kill")
+    @PostMapping("/kill")
     @ApiOperation(value = "根据描述场次id和商品id以及商品随机码立即抢购")
     public R seckillPurchase(@ApiParam(name = "seckillParamsVo",value = "seckillParamsVo",required = true)
-            @RequestBody SeckillParamsVo seckillParamsVo, HttpServletRequest request) {
+            @RequestBody SeckillParamsVo seckillParamsVo, HttpServletRequest request) throws InterruptedException {
         // 1、登录判断
         LoginUser loginUser = JwtUtils.getLoginUserByToken(request);
 
