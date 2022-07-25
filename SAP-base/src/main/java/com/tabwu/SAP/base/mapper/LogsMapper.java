@@ -1,6 +1,6 @@
 package com.tabwu.SAP.base.mapper;
 
-import com.tabwu.SAP.base.entity.Logs;
+import com.tabwu.SAP.common.entity.Logs;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
