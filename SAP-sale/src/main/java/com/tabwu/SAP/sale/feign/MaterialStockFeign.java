@@ -2,6 +2,7 @@ package com.tabwu.SAP.sale.feign;
 
 import com.tabwu.SAP.common.entity.R;
 import com.tabwu.SAP.sale.entity.to.WareStockTo;
+import com.tabwu.SAP.sale.feign.callback.MaterialStockCallbackService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -16,7 +17,7 @@ import java.util.List;
  * @DATE: 2022/7/4 14:03
  * @DESCRIPTION:
  */
-@FeignClient(value = "ware-service")
+@FeignClient(value = "ware-service",fallback = MaterialStockCallbackService.class)
 public interface MaterialStockFeign {
 
     @PostMapping("/ware/material-ware/checkStock/{mcode}")

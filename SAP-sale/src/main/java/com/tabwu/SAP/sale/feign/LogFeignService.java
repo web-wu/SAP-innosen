@@ -2,6 +2,7 @@ package com.tabwu.SAP.sale.feign;
 
 import com.tabwu.SAP.common.entity.Logs;
 import com.tabwu.SAP.common.entity.R;
+import com.tabwu.SAP.sale.feign.callback.LogCallbackService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
  * @DATE: 2022/7/25 17:15
  * @DESCRIPTION:
  */
-@FeignClient("base-service")
+@FeignClient(value = "base-service",fallback = LogCallbackService.class)
 public interface LogFeignService {
 
     @PostMapping("/base/logs/add")

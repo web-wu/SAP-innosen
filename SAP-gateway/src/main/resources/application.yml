@@ -13,6 +13,7 @@ spring:
 #        prefix: PREFIX
 #        group: GROUP
 #        namespace: NAMESPACE
+
     gateway:
       routes:
         - id: ware-service-route
@@ -52,3 +53,36 @@ spring:
           uri: lb://statistic-service
           predicates:
             - Path=/statistic/**
+
+
+
+    #sentinel熔断降级。限流配置
+    sentinel:
+      transport:
+        dashboard: localhost:8080
+        port: 8719
+#sleuth链路追踪
+  zipkin:
+    # zipkin 服务器的地址
+    base-url: http://123.57.193.24:9411/
+    # 关闭服务发现，否则 Spring Cloud 会把 zipkin 的 url 当做服务名称
+    discovery-client-enabled: false
+    # 设置使用 http 的方式传输数据
+    sender:
+      type: web
+  # 设置抽样采集率为 100%，默认为 0.1，即 10%
+  sleuth:
+    sampler:
+      probability: 1
+
+#开启feign对sentinel的支持
+feign:
+  sentinel:
+    enabled: true
+
+#开启actuator，暴露端点，开启收集信息
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
