@@ -4,7 +4,7 @@ import com.tabwu.SAP.common.annotation.Log;
 import com.tabwu.SAP.common.entity.LoginUser;
 import com.tabwu.SAP.common.entity.Logs;
 import com.tabwu.SAP.common.utils.JwtUtils;
-import com.tabwu.SAP.ware.feign.LogFeignService;
+import com.tabwu.SAP.user.feign.LogFeignService;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -12,6 +12,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -83,7 +84,11 @@ public class LogAspact {
         long endtime = System.currentTimeMillis();
         String ttl = (endtime - startime) + "ms";
 
-        logs.setUsername(loginUser.getUsername());
+        if (loginUser != null) {
+            logs.setUsername(loginUser.getUsername());
+        } else {
+            logs.setUsername(null);
+        }
         logs.setInputParams(paramters.toString());
         logs.setOutputParams(result.toString());
         logs.setClientIp(remoteHost);

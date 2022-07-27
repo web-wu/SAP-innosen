@@ -34,26 +34,26 @@
         </dependency>
         <!--nacos 发现与配置中心-->
 
-        <!--sentinel 熔断降级、限流-->
-        <dependency>
-            <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
-        </dependency>
-        <!--sentinel 熔断降级、限流-->
+<!--        &lt;!&ndash;sentinel 熔断降级、限流&ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>com.alibaba.cloud</groupId>-->
+<!--            <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>-->
+<!--        </dependency>-->
+<!--        &lt;!&ndash;sentinel 熔断降级、限流&ndash;&gt;-->
 
-        <!--sleuth链路追踪-->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-zipkin</artifactId>
-        </dependency>
-        <!--sleuth链路追踪-->
+<!--        &lt;!&ndash;sleuth链路追踪&ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.cloud</groupId>-->
+<!--            <artifactId>spring-cloud-starter-zipkin</artifactId>-->
+<!--        </dependency>-->
+<!--        &lt;!&ndash;sleuth链路追踪&ndash;&gt;-->
 
-        <!--开启暴露端点-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-        <!--开启暴露端点-->
+<!--        &lt;!&ndash;开启暴露端点&ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter-actuator</artifactId>-->
+<!--        </dependency>-->
+<!--        &lt;!&ndash;开启暴露端点&ndash;&gt;-->
 
         <!--mybatis-->
         <dependency>

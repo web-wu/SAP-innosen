@@ -8,6 +8,8 @@ package com.tabwu.SAP.common.constant;
  */
 public class LogConstant {
 
+    public static final String LOGIN = "login";
+    public static final String LOGOUT = "logout";
     public static final String INSERT = "insert";
     public static final String DELETE = "delete";
     public static final String DELETE_BATCH = "delete_batch";
