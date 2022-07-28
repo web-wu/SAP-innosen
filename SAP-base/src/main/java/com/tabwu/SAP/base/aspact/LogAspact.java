@@ -41,11 +41,10 @@ public class LogAspact {
     //joinPoint 目标类中的切点方法
     public void around(ProceedingJoinPoint joinPoint) {
 
-        long startime = System.currentTimeMillis();
 
-        //获取请求uri
+        //获取请求ip
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        String remoteHost = request.getRemoteHost();
+        String remoteHost = request.getRemoteAddr();
         //用户信息
         LoginUser loginUser = JwtUtils.getLoginUserByToken(request);
 
@@ -55,14 +54,16 @@ public class LogAspact {
 
         //获取入参
 
-        //传入的 参数值 数组
+        //传入的 参数值 实参数组
         Object[] args = joinPoint.getArgs();
-        //方法的 参数名 数组
+        //方法的 参数名 形参数组
         String[] argsNames = ((MethodSignature) joinPoint.getSignature()).getParameterNames();
         HashMap<String, Object> paramters = new HashMap<>();
         for (int i = 0; i < args.length; i++) {
             paramters.put(argsNames[i],args[i]);
         }
+
+        long startime = System.currentTimeMillis();
 
         //获取出参
         Object result = null;
@@ -73,19 +74,25 @@ public class LogAspact {
             throwable.printStackTrace();
         }
 
-        Logs logs = new Logs();
-        if (annotation != null) {
-            logs.setMethod(annotation.method());
-            logs.setModule(annotation.module());
-            logs.setOperateType(annotation.operateType());
-        }
         //获取耗时
         long endtime = System.currentTimeMillis();
         String ttl = (endtime - startime) + "ms";
 
-        logs.setUsername(loginUser.getUsername());
+        Logs logs = new Logs();
+        if (annotation != null) {
+            logs.setModule(annotation.module());
+            logs.setMethod(annotation.method());
+            logs.setOperateType(annotation.operateType());
+        }
+
+        if (loginUser != null) {
+            logs.setUsername(loginUser.getUsername());
+        }
+
         logs.setInputParams(paramters.toString());
-        logs.setOutputParams(result.toString());
+        if(result != null) {
+            logs.setOutputParams(result.toString());
+        }
         logs.setClientIp(remoteHost);
         logs.setContent(ttl);
 
