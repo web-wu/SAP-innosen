@@ -80,6 +80,8 @@ public class JwtLoginTokenfilter extends UsernamePasswordAuthenticationFilter {
             HashMap<String, Object> msg2 = new HashMap<>();
             msg2.put("code",HttpServletResponse.SC_OK);
             msg2.put("message","认证通过");
+            msg2.put("token","Bearer " + token);
+            msg2.put("uid",loginUser.getId());
             out.write(JSON.toJSONString(msg2));
             out.flush();
             out.close();
