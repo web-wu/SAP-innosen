@@ -1,6 +1,4 @@
 var Login = function () {
-    
-		var baseUrl = '';
 
     return {
         //main function to initiate the module
@@ -50,19 +48,31 @@ var Login = function () {
 	            },
 
 	            submitHandler: function () {
+									var username = $('#username').val();
+									var password = $('#password').val();
+									var loginObj = {
+										username: username,
+										password: password
+									}
 									$.ajax({
-										url: "",
-										type: 'get',
-										data: {},
+										url: "http://localhost:8000/login",
+										type: 'post',
+										dataType: "json",
+        						contentType: "application/json",
+										data: JSON.stringify(loginObj),
 										success (res) {
-
+											if(res.code === 200) {
+												localStorage.setItem("token", res.token)
+												localStorage.setItem("uid", res.uid)
+												window.location.href = "index.html";
+											} else {
+												console.log("login error")
+											}
 										},
 										error (err) {
-
+											console.log("login error")
 										}
 									})
-									console.log("login button")
-	                // window.location.href = "index.html";
 	            }
 	        });
 

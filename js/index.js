@@ -3,6 +3,24 @@ var Index = function () {
 
     return {
 
+        // 根据用户初始化菜单项
+        initMenu: function () {
+            var uid = localStorage.getItem("uid")
+            $.ajax({
+                Headers: {
+                    Authorization: localStorage.getItem("token")
+                },
+                url: "http://localhost:8000/user/user/findPermission/" + uid,
+                type: 'get',
+                success (res) {
+                    if(res.code === 20000) {
+                        console.log(res)
+                    } 
+                }
+            })
+        },
+
+
         //main function to initiate the module
         init: function () {
 
