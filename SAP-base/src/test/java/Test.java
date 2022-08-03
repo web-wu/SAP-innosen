@@ -29,7 +29,7 @@ public class Test {
                 })
                 .strategyConfig(builder -> {
                     builder.controllerBuilder().enableRestStyle();
-                    builder.addInclude("yls_department","yls_position") // 设置需要生成的表名
+                    builder.addInclude("yls_vocation") // 设置需要生成的表名
                             .addTablePrefix("yls_", "yls_"); // 设置过滤表前缀
                 })
                 .templateEngine(new FreemarkerTemplateEngine()) // 使用Freemarker引擎模板，默认的是Velocity引擎模板

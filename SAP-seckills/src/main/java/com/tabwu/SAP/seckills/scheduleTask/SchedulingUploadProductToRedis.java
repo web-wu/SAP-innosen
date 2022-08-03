@@ -30,7 +30,7 @@ public class SchedulingUploadProductToRedis {
     private static final String UPLOAD_LOCK = "seckill:upload:lock";
 
     @Async
-    @Scheduled(cron = "* 1/5 * * * ?")
+    @Scheduled(cron = "0 0 3 * * ?")
     public void uploadProductToRedisOf3Days() {
         log.info("定时将活动场次与相关商品提前预上架到redis，上架3天内的活动，当前时间：{}",new Date());
         RLock lock = redissonClient.getLock(UPLOAD_LOCK);
