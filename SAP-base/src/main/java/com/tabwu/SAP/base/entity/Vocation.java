@@ -7,11 +7,13 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
 /**
  * @author tabwu
  * @since 2022-08-03
  */
+@Data
 @TableName("yls_vocation")
 @ApiModel(value = "Vocation对象", description = "")
 public class Vocation implements Serializable {
@@ -42,96 +44,19 @@ public class Vocation implements Serializable {
     @ApiModelProperty("状态，0-未审批 1-已审批")
     private Integer status;
 
+    @ApiModelProperty("一级组长审批人")
+    private String approve1;
+
+    @ApiModelProperty("二级经理审批人")
+    private String approve2;
+
+    @ApiModelProperty("三级总经理审批人")
+    private String approve3;
+
     @ApiModelProperty("创建时间")
     private LocalDateTime createTime;
 
     @ApiModelProperty("删除标记，0未删除，1删除，默认0")
     private Integer isDelete;
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-    public Integer getType() {
-        return type;
-    }
-
-    public void setType(Integer type) {
-        this.type = type;
-    }
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
-    }
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
-    }
-    public LocalDateTime getEndTtime() {
-        return endTtime;
-    }
-
-    public void setEndTtime(LocalDateTime endTtime) {
-        this.endTtime = endTtime;
-    }
-    public Integer getVocationTime() {
-        return vocationTime;
-    }
-
-    public void setVocationTime(Integer vocationTime) {
-        this.vocationTime = vocationTime;
-    }
-    public String getCause() {
-        return cause;
-    }
-
-    public void setCause(String cause) {
-        this.cause = cause;
-    }
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-    public LocalDateTime getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(LocalDateTime createTime) {
-        this.createTime = createTime;
-    }
-    public Integer getIsDelete() {
-        return isDelete;
-    }
-
-    public void setIsDelete(Integer isDelete) {
-        this.isDelete = isDelete;
-    }
-
-    @Override
-    public String toString() {
-        return "Vocation{" +
-            "id=" + id +
-            ", type=" + type +
-            ", user=" + user +
-            ", startTime=" + startTime +
-            ", endTtime=" + endTtime +
-            ", vocationTime=" + vocationTime +
-            ", cause=" + cause +
-            ", status=" + status +
-            ", createTime=" + createTime +
-            ", isDelete=" + isDelete +
-        "}";
-    }
 }

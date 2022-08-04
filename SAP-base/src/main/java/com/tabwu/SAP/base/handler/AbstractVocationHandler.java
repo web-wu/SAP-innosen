@@ -9,12 +9,14 @@ import com.tabwu.SAP.base.entity.Vocation;
  * @DESCRIPTION:  责任链设计模式 处理 请假条
  */
 public abstract class AbstractVocationHandler {
-    // 一天8小时
-    protected static final int VOCATION_LEVEL_1 = 8;
-    // 三天24小时
-    protected static final int VOCATION_LEVEL_2 = 24;
-    // 七天56小时
-    protected static final int VOCATION_LEVEL_3 = 56;
+    // 最小请假时长1小时
+    protected static final int VOCATION_LEVEL_0 = 60 * 60;
+    // 一天24小时
+    public static final int VOCATION_LEVEL_1 = 24 * 60 * 60;
+    // 三天72小时
+    public static final int VOCATION_LEVEL_2 = 3 * 24 * 60 * 60;
+    // 七天168小时
+    public static final int VOCATION_LEVEL_3 = 7 * 24 * 60 * 60;
     // 领导处理请假条时间最小值
     private int minHour;
     // 领导处理请假条时间最大值
@@ -22,10 +24,28 @@ public abstract class AbstractVocationHandler {
     // 当前领导是否有上级领导
     private AbstractVocationHandler nextVocattionHandler;
 
+    // 该领导没有审批时间上限
+    public AbstractVocationHandler(int minHour) {
+        this.minHour = minHour;
+    }
+
+    // 设置领导审批开始时间、结束时间
+    public AbstractVocationHandler(int minHour, int maxHour) {
+        this.minHour = minHour;
+        this.maxHour = maxHour;
+    }
 
     public final void submitVocation(Vocation vocation) {
-        int i = vocation.getEndTtime() - vocation.getStartTime();
-        if ()
+        int diffTime = vocation.getEndTtime().getSecond() - vocation.getStartTime().getSecond();
+
+        if (diffTime >= VOCATION_LEVEL_0) {
+            this.handlerVocation(vocation);
+            if (nextVocattionHandler != null && diffTime > this.maxHour) {
+                this.handlerVocation(vocation);
+            }
+        } else {
+            // TODO 请假时长过短，不能处理
+        }
     }
 
     protected abstract void handlerVocation(Vocation vocation);
