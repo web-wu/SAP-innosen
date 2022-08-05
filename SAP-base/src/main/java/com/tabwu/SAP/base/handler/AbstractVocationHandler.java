@@ -41,7 +41,7 @@ public abstract class AbstractVocationHandler {
         if (diffTime >= VOCATION_LEVEL_0) {
             this.handlerVocation(vocation);
             if (nextVocattionHandler != null && diffTime > this.maxHour) {
-                this.handlerVocation(vocation);
+                nextVocattionHandler.handlerVocation(vocation);
             }
         } else {
             // TODO 请假时长过短，不能处理

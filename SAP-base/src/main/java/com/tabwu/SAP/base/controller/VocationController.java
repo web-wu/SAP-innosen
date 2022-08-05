@@ -13,6 +13,7 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -84,10 +85,10 @@ public class VocationController {
     }
 
 
-    @GetMapping("/approve/{id}/{status}")
+    @GetMapping("/approve/{id}")
     @ApiOperation(value = "根据id修改请假条状态")
-    public R approveVocation(@PathVariable("id") String id,@PathVariable("status") Integer status) {
-        vocationService.approveVocation(id,status);
+    public R approveVocation(HttpServletRequest request, @PathVariable("id") String id) {
+        vocationService.approveVocation(id,request);
         return R.ok();
     }
 }

@@ -46,6 +46,9 @@ public class User implements UserDetails,Serializable {
     @ApiModelProperty("部门")
     private String department;
 
+    @ApiModelProperty("领导id")
+    private String leaderId;
+
     @ApiModelProperty("邮箱")
     private String email;
 

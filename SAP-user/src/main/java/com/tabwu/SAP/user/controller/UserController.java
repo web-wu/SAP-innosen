@@ -113,4 +113,13 @@ public class UserController {
         return R.ok().data("permission",permission);
     }
 
+    @GetMapping("/leaderId/{leaderId}")
+    @ApiOperation(value = "根据id查询领导信息")
+    public R findLeaderByLeaderId(@PathVariable("leaderId") String leaderId) {
+        User user = userService.getById(leaderId);
+        UserTo userTo = new UserTo();
+        BeanUtils.copyProperties(user,userTo);
+        return R.ok().data("userTo",userTo);
+    }
+
 }

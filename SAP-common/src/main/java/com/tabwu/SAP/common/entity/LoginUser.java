@@ -31,6 +31,9 @@ public class LoginUser implements Serializable {
     @ApiModelProperty("部门")
     private String department;
 
+    @ApiModelProperty("领导id")
+    private String leaderId;
+
     @ApiModelProperty("邮箱")
     private String email;
 
@@ -48,4 +51,5 @@ public class LoginUser implements Serializable {
 
     @ApiModelProperty("权限key")
     private String roleKey;
+
 }

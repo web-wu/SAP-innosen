@@ -1,4 +1,4 @@
-package com.tabwu.SAP.user.entity.To;
+package com.tabwu.SAP.base.entity.To;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

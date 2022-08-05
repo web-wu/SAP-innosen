@@ -7,25 +7,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @PROJECT_NAME: SAP-innosen
  * @USER: tabwu
- * @DATE: 2022/8/4 17:24
+ * @DATE: 2022/8/5 16:30
  * @DESCRIPTION:
  */
-public class GroupLeader extends AbstractVocationHandler{
+public class GeneralManagerLeader extends AbstractVocationHandler{
 
     private final String approver;
 
     @Autowired
     private IVocationService vocationService;
 
-    public GroupLeader(String approver) {
-        super(GroupLeader.VOCATION_LEVEL_1, GroupLeader.VOCATION_LEVEL_2);
+    public GeneralManagerLeader(String approver) {
+        super(GeneralManagerLeader.VOCATION_LEVEL_3);
         this.approver = approver;
     }
 
     @Override
     protected void handlerVocation(Vocation vocation) {
         vocation.setStatus(1);
-        vocation.setApprove1(approver);
+        vocation.setApprove2(approver);
         vocationService.updateById(vocation);
     }
 }
