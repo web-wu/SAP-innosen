@@ -19,6 +19,7 @@
         <module>SAP-gateway</module>
         <module>SAP-statistic</module>
         <module>SAP-seckills</module>
+        <module>SAP-attendance</module>
     </modules>
 
     <properties>
